@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stockholm Ölbar-Karta</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+    nav {
+      background-color: #6d6a6a;
+      color: white;
+      padding: 1rem;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav .title {
+      font-size: 1.2rem;
+    }
+    nav input[type="time"] {
+      background: #444;
+      border: none;
+      color: white;
+      padding: 0.5rem;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    #map {
+      height: calc(100% - 60px);
+      width: 100%;
+    }
+    .leaflet-popup-content {
+      font-size: 14px;
+    }
+    .price-marker .price-circle {
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 30px;
+      width: 30px;
+      height: 30px;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="title">vadkostarölen.se</div>
+    <input type="time" id="timePicker" value="18:00">
+  </nav>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([59.3293, 18.0686], 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
+    const bars = [
+      {
+        name: "Drobz Baren69",
+        lat: 59.3345,
+        lng: 18.0632,
+        beerPrice: 69,
+        happyHour: null
+      },
+      {
+        name: "Ölstugan", //ta ej bort
+        lat: 59.3312,
+        lng: 18.0704,
+        beerPrice: 89,
+        happyHour: {
+          from: "15:00",
+          to: "18:00",
+          price: 55
+        }
+      },
+      {
+        name: "testtugan 1", //test
+        lat: 57.7213,
+        lng: 12.9428,
+        beerPrice: 89,
+        happyHour: {
+          from: "15:00",
+          to: "18:00",
+          price: 55
+        }
+      },
+      {
+        name: "vattenflaska baren1§", //test
+        lat: 57.7776,
+        lng: 14.1385,
+        beerPrice: 89,
+        happyHour: {
+          from: "15:00",
+          to: "18:00",
+          price: 55
+        }
+      },
+      {
+        name: "Mälarpaviljongen",
+        lat: 59.3276,
+        lng: 18.0418,
+        beerPrice: 75,
+        happyHour: null
+      },
+      {
+        name: "Drobz Hus",
+        lat: 59.3276,
+        lng: 18.0518,
+        beerPrice: 89,
+        happyHour: {
+          from: "16:00",
+          to: "19:00",
+          price: 59
+        }
+      }
+    ];
+
+    let currentMarkers = [];
+
+    function isTimeWithinRange(time, from, to) {
+      return time >= from && time <= to;
+    }
+
+    function clearMarkers() {
+      currentMarkers.forEach(marker => map.removeLayer(marker));
+      currentMarkers = [];
+    }
+
+    function createMarker(bar, priceToShow, time) {
+      const priceIcon = L.divIcon({
+        className: 'price-marker',
+        html: `<div class="price-circle">${priceToShow}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      });
+
+      const popup = `
+        <strong>${bar.name}</strong><br>
+        Ölpris just nu: ${priceToShow} kr<br>
+        ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Inga erbjudanden"}
+      `;
+
+      const marker = L.marker([bar.lat, bar.lng], { icon: priceIcon }).addTo(map).bindPopup(popup);
+      currentMarkers.push(marker);
+    }
+
+    function updateBarsAtTime(selectedTime) {
+      clearMarkers();
+
+      const pricesAtTime = bars.map(bar => {
+        let currentPrice = bar.beerPrice;
+
+        if (bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
+          currentPrice = bar.happyHour.price;
+        }
+
+        return { bar, currentPrice };
+      });
+
+      const lowestPrice = Math.min(...pricesAtTime.map(b => b.currentPrice));
+
+      pricesAtTime.forEach(({ bar, currentPrice }) => {
+        if (currentPrice === lowestPrice) {
+          createMarker(bar, currentPrice, selectedTime);
+        }
+      });
+    }
+
+    // Initial tid och kartvisning
+    const initialTime = document.getElementById("timePicker").value;
+    updateBarsAtTime(initialTime);
+
+    // Lyssna på tidändring
+    document.getElementById("timePicker").addEventListener("change", (e) => {
+      updateBarsAtTime(e.target.value);
+    });
+  </script>
+</body>
+</html>
