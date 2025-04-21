@@ -69,9 +69,34 @@
       maxZoom: 19
     }).addTo(map);
 
+// Användarens position
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+
+      const userMarker = L.circleMarker([userLat, userLng], { // ändra "i" till "L"
+        radius: 8,
+        color: '#00ff00',
+        fillColor: '#00ff00',
+        fillOpacity: 0.8
+      }).addTo(map).bindPopup("Du är här!");
+
+      map.setView([userLat, userLng], 14);
+    },
+    error => {
+      console.warn("Kunde inte hämta platsen: ", error);
+    }
+  );
+  } else {
+    alert("Din webbläsare stöder inte geolokalisering.");
+  }
+    
+
     const bars = [
       {
-        name: "Drobz Baren69",
+        name: "Östrahammar Bar",
         lat: 59.3345,
         lng: 18.0632,
         beerPrice: 69,
@@ -89,7 +114,7 @@
         }
       },
       {
-        name: "testtugan 1", //test
+        name: "Duderino", //test
         lat: 57.7213,
         lng: 12.9428,
         beerPrice: 89,
@@ -100,7 +125,7 @@
         }
       },
       {
-        name: "vattenflaska baren1§", //test
+        name: "Brasserie Park", //test
         lat: 57.7776,
         lng: 14.1385,
         beerPrice: 89,
@@ -118,7 +143,7 @@
         happyHour: null
       },
       {
-        name: "Drobz Hus",
+        name: "Ölbryggan",
         lat: 59.3276,
         lng: 18.0518,
         beerPrice: 89,
@@ -181,11 +206,9 @@
       });
     }
 
-    // Initial tid och kartvisning
     const initialTime = document.getElementById("timePicker").value;
     updateBarsAtTime(initialTime);
 
-    // Lyssna på tidändring
     document.getElementById("timePicker").addEventListener("change", (e) => {
       updateBarsAtTime(e.target.value);
     });
