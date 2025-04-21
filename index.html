@@ -69,30 +69,28 @@
       maxZoom: 19
     }).addTo(map);
 
-// Användarens position
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
 
-      const userMarker = L.circleMarker([userLat, userLng], { // ändra "i" till "L"
-        radius: 8,
-        color: '#00ff00',
-        fillColor: '#00ff00',
-        fillOpacity: 0.8
-      }).addTo(map).bindPopup("Du är här!");
+          const userMarker = L.circleMarker([userLat, userLng], {
+            radius: 8,
+            color: '#00ff00',
+            fillColor: '#00ff00',
+            fillOpacity: 0.8
+          }).addTo(map).bindPopup("Du är här!");
 
-      map.setView([userLat, userLng], 14);
-    },
-    error => {
-      console.warn("Kunde inte hämta platsen: ", error);
+          map.setView([userLat, userLng], 14);
+        },
+        error => {
+          console.warn("Kunde inte hämta platsen: ", error);
+        }
+      );
+    } else {
+      alert("Din webbläsare stöder inte geolokalisering.");
     }
-  );
-  } else {
-    alert("Din webbläsare stöder inte geolokalisering.");
-  }
-    
 
     const bars = [
       {
@@ -103,7 +101,7 @@ if (navigator.geolocation) {
         happyHour: null
       },
       {
-        name: "Ölstugan", //ta ej bort
+        name: "Ölstugan",
         lat: 59.3312,
         lng: 18.0704,
         beerPrice: 89,
@@ -114,7 +112,7 @@ if (navigator.geolocation) {
         }
       },
       {
-        name: "Duderino", //test
+        name: "Duderino",
         lat: 57.7213,
         lng: 12.9428,
         beerPrice: 89,
@@ -125,7 +123,7 @@ if (navigator.geolocation) {
         }
       },
       {
-        name: "Brasserie Park", //test
+        name: "Brasserie Park",
         lat: 57.7776,
         lng: 14.1385,
         beerPrice: 89,
@@ -152,6 +150,61 @@ if (navigator.geolocation) {
           to: "19:00",
           price: 59
         }
+      },
+      {
+        name: "Söderkällaren", //ny inlagd
+        lat: 59.3150,
+        lng: 18.0759,
+        beerPrice: 49,
+        happyHour: {
+          from: "16:00",
+          to: "18:00",
+          price: 39
+        }
+      },
+      {
+        name: "Kloster Bar & Deli", //ny inlagd 2
+        lat: 59.3170,
+        lng: 18.059,
+        beerPrice: 48,
+        happyHour: {
+          from: "13:00",
+          to: "19:00",
+          price: 43
+        }
+      },
+      {
+        name: "Dovas Hornstull", //ny inlagd 3
+        lat: 59.3172,
+        lng: 18.0585,
+        beerPrice: 39,
+        happyHour: {
+          from: "13:00",
+          to: "18:00",
+          price: 35
+        }
+      },
+      {
+        name: "Bara Enkelt", //ny inlagd 4
+        lat: 59.3135,
+        lng: 18.0780,
+        beerPrice: 45,
+        happyHour: {
+          from: "15:00",
+          to: "17:00",
+          price: 39
+        }
+      },
+      {
+        name: "Baras Backe", //ny inlagd 5
+        lat: 59.3166,
+        lng: 18.0711,
+        beerPrice: 49,
+        happyHour: {
+          from: "15:00",
+          to: "17:00",
+          price: 39
+        }
       }
     ];
 
@@ -177,7 +230,7 @@ if (navigator.geolocation) {
       const popup = `
         <strong>${bar.name}</strong><br>
         Ölpris just nu: ${priceToShow} kr<br>
-        ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Inga erbjudanden"}
+        ${bar.happyHour ? `Happy Hour: Fram till ${bar.happyHour.from}` : " Happy Hour: Inga erbjudanden"}
       `;
 
       const marker = L.marker([bar.lat, bar.lng], { icon: priceIcon }).addTo(map).bindPopup(popup);
@@ -185,26 +238,18 @@ if (navigator.geolocation) {
     }
 
     function updateBarsAtTime(selectedTime) {
-      clearMarkers();
+  clearMarkers();
 
-      const pricesAtTime = bars.map(bar => {
-        let currentPrice = bar.beerPrice;
+  bars.forEach(bar => {
+    let currentPrice = bar.beerPrice;
 
-        if (bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
-          currentPrice = bar.happyHour.price;
-        }
-
-        return { bar, currentPrice };
-      });
-
-      const lowestPrice = Math.min(...pricesAtTime.map(b => b.currentPrice));
-
-      pricesAtTime.forEach(({ bar, currentPrice }) => {
-        if (currentPrice === lowestPrice) {
-          createMarker(bar, currentPrice, selectedTime);
-        }
-      });
+    if (bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
+      currentPrice = bar.happyHour.price;
     }
+
+    createMarker(bar, currentPrice, selectedTime);
+  });
+}
 
     const initialTime = document.getElementById("timePicker").value;
     updateBarsAtTime(initialTime);
