@@ -51,12 +51,51 @@
       font-size: 14px;
       box-shadow: 0 0 4px rgba(0,0,0,0.3);
     }
+    .hamburger {
+  z-index: 1002;
+  position: relative;
+}
+
+.menu {
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  background-color: #444;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  z-index: 1001;
+}
+
+.menu a {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: white;
+  text-decoration: none;
+  border-bottom: 1px solid #666;
+}
+
+.menu a:last-child {
+  border-bottom: none;
+}
+
+.menu a:hover {
+  background-color: #555;
+}
   </style>
 </head>
 <body>
   <nav>
+    <div class="hamburger" id="hamburger">&#9776;</div>
     <div class="title">vadkostarölen.se</div>
     <input type="time" id="timePicker" value="18:00">
+    <div class="menu" id="menu">
+      <a href="#" id="cheapestBeer">Ranka billigast öl</a>
+      <a href="#">Om oss</a>
+      <a href="#">Kontakt</a>
+      <a href="#">Policy</a>
+    </div>
   </nav>
   <div id="map"></div>
 
@@ -153,8 +192,8 @@
       },
       {
         name: "Söderkällaren", //ny inlagd
-        lat: 59.3150,
-        lng: 18.0759,
+        lat: 59.31505403252609,
+        lng: 18.07571487680541,
         beerPrice: 49,
         happyHour: {
           from: "16:00",
@@ -164,8 +203,8 @@
       },
       {
         name: "Kloster Bar & Deli", //ny inlagd 2
-        lat: 59.3170,
-        lng: 18.059,
+        lat:  59.3179944366191,
+        lng: 18.054435134682265,
         beerPrice: 48,
         happyHour: {
           from: "13:00",
@@ -175,8 +214,8 @@
       },
       {
         name: "Dovas Hornstull", //ny inlagd 3
-        lat: 59.3172,
-        lng: 18.0585,
+        lat: 59.31811343602271,
+        lng: 18.031895598422384,
         beerPrice: 39,
         happyHour: {
           from: "13:00",
@@ -186,8 +225,8 @@
       },
       {
         name: "Bara Enkelt", //ny inlagd 4
-        lat: 59.3135,
-        lng: 18.0780,
+        lat: 59.31230112897268,
+        lng: 18.079257104810615,
         beerPrice: 45,
         happyHour: {
           from: "15:00",
@@ -197,8 +236,8 @@
       },
       {
         name: "Baras Backe", //ny inlagd 5
-        lat: 59.3166,
-        lng: 18.0711,
+        lat: 59.31650628290001,
+        lng: 18.07227248335206,
         beerPrice: 49,
         happyHour: {
           from: "15:00",
@@ -257,6 +296,34 @@
     document.getElementById("timePicker").addEventListener("change", (e) => {
       updateBarsAtTime(e.target.value);
     });
+
+
+    document.getElementById("hamburger").addEventListener("click", () => {
+  const menu = document.getElementById("menu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+});
+
+// Visa bar med billigast öl när man klickar på knappen
+document.getElementById("cheapestBeer").addEventListener("click", () => {
+  let cheapestBar = bars[0];
+  let currentTime = document.getElementById("timePicker").value;
+  let lowestPrice = bars[0].beerPrice;
+
+  bars.forEach(bar => {
+    let price = bar.beerPrice;
+    if (bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
+      price = bar.happyHour.price;
+    }
+    if (price < lowestPrice) {
+      lowestPrice = price;
+      cheapestBar = bar;
+    }
+  });
+
+  map.setView([cheapestBar.lat, cheapestBar.lng], 16);
+  alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
+});
+
   </script>
 </body>
 </html>
