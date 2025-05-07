@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stockholm Ölbar-Karta</title>
+  <title>Stockholm Ölkarta</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     body, html {
@@ -54,6 +54,7 @@
     .hamburger {
   z-index: 1002;
   position: relative;
+  cursor: pointer;
 }
 
 .menu {
@@ -92,9 +93,9 @@
     <input type="time" id="timePicker" value="18:00">
     <div class="menu" id="menu">
       <a href="#" id="cheapestBeer">Ranka billigast öl</a>
-      <a href="#">Om oss</a>
-      <a href="#">Kontakt</a>
-      <a href="#">Policy</a>
+      <a href="aboutus.html">Om oss</a>
+      <a href="contact.html">Kontakt</a>
+      <a href="policy.html">Policy</a>
     </div>
   </nav>
   <div id="map"></div>
@@ -133,14 +134,14 @@
 
     const bars = [
       {
-        name: "Östrahammar Bar",
+        name: "Östrahammar Bar", //visuell test bar
         lat: 59.3345,
         lng: 18.0632,
         beerPrice: 69,
         happyHour: null
       },
       {
-        name: "Ölstugan",
+        name: "Ölstugan", //visuell test bar
         lat: 59.3312,
         lng: 18.0704,
         beerPrice: 89,
@@ -151,7 +152,7 @@
         }
       },
       {
-        name: "Duderino",
+        name: "Duderino", //visuell test bar
         lat: 57.7213,
         lng: 12.9428,
         beerPrice: 89,
@@ -162,7 +163,7 @@
         }
       },
       {
-        name: "Brasserie Park",
+        name: "Brasserie Park", //visuell test bar
         lat: 57.7776,
         lng: 14.1385,
         beerPrice: 89,
@@ -173,14 +174,14 @@
         }
       },
       {
-        name: "Mälarpaviljongen",
+        name: "Mälarpaviljongen", //visuell test bar
         lat: 59.3276,
         lng: 18.0418,
         beerPrice: 75,
         happyHour: null
       },
       {
-        name: "Ölbryggan",
+        name: "Ölbryggan", //visuell test bar
         lat: 59.3276,
         lng: 18.0518,
         beerPrice: 89,
