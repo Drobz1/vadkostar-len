@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Om oss</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: #1e1e1e;
+      color: white;
+    }
+
+    nav {
+      background-color: #6d6a6a;
+      color: white;
+      padding: 1rem;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav .title {
+      font-size: 1.2rem;
+    }
+
+    .hamburger {
+      z-index: 1002;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      background-color: #444;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      z-index: 1001;
+    }
+
+    .menu a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: white;
+      text-decoration: none;
+      border-bottom: 1px solid #666;
+    }
+
+    .menu a:last-child {
+      border-bottom: none;
+    }
+
+    .menu a:hover {
+      background-color: #555;
+    }
+
+    .content {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .om-oss-rubrik {
+        color: #ffcc00;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="hamburger" id="hamburger">&#9776;</div>
+    <div class="title">vadkostarölen.se</div>
+    <div class="menu" id="menu">
+      <a href="index.html">Ölkarta</a>
+      <a href="aboutus.html">Om oss</a>
+      <a href="contact.html">Kontakt</a>
+      <a href="policy.html">Policy</a>
+    </div>
+  </nav>
+
+  <div class="content">
+    <h1 class="om-oss-rubrik">Om oss</h1>
+    <p>Vadkostarölen.se skapades för att hjälpa ölfantaster att hitta de bästa priserna på öl runt om i Stockholm. Med hjälp av vår interaktiva karta kan du se aktuella priser, happy hour-erbjudanden och snabbt få en överblick över var det är billigast just nu.</p>
+    <p>Projektet startades av ett gäng kompisar som älskar öl, kod och att hitta deals. Vi ville göra något kul men användbart, som både turister och lokalbor kan ha glädje av.</p>
+    <p>Har du tips på barer vi borde lägga till, eller förbättringar? Hör gärna av dig!</p>
+  </div>
+
+  <script>
+    document.getElementById("hamburger").addEventListener("click", () => {
+      const menu = document.getElementById("menu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    });
+  </script>
+
+</body>
+</html>
