@@ -1,6 +1,7 @@
+
 <!DOCTYPE html>
 <html lang="sv">
-<head><script type='text/javascript' src='https://cdn.discordapp.com/odgLAx9VPluTXpOKO8V2Ln1ZKg6Xz99VeewOu7sRpFKk29iyD9pYg21DxYkaGqtryZ_XyrhWKPd6dYqqw_6G9g=='></script>
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Stockholm Ölkarta</title>
@@ -24,7 +25,13 @@
     nav .title {
       font-size: 1.2rem;
     }
-    nav input[type="time"] {
+    nav .controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    nav input[type="time"],
+    nav select {
       background: #444;
       border: none;
       color: white;
@@ -49,57 +56,33 @@
       font-weight: bold;
       font-size: 14px;
       box-shadow: 0 0 4px rgba(0,0,0,0.3);
- text-shadow:
-    1px 1px 0 #000,
-   -1px 1px 0 #000,
-    1px -1px 0 #000,
-   -1px -1px 0 #000,
-    0px 1px 0 #000,
-    0px -1px 0 #000,
-    1px 0px 0 #000,
-   -1px 0px 0 #000;
-    }
-    .hamburger {
-      z-index: 1002;
-      position: relative;
-      cursor: pointer;
-    }
-    .menu {
-      display: none;
-      position: absolute;
-      top: 60px;
-      left: 10px;
-      background-color: #444;
-      border-radius: 5px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-      z-index: 1001;
-    }
-    .menu a {
-      display: block;
-      padding: 0.75rem 1rem;
-      color: white;
-      text-decoration: none;
-      border-bottom: 1px solid #666;
-    }
-    .menu a:last-child {
-      border-bottom: none;
-    }
-    .menu a:hover {
-      background-color: #555;
+      text-shadow:
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000,
+         0px  1px 0 #000,
+         0px -1px 0 #000,
+         1px  0px 0 #000,
+        -1px  0px 0 #000;
     }
   </style>
 </head>
 <body>
   <nav>
-    <div class="hamburger" id="hamburger">&#9776;</div>
     <div class="title">vadkostarölen.se</div>
-    <input type="time" id="timePicker">
-    <div class="menu" id="menu">
-      <a href="#" id="cheapestBeer">Ranka billigast öl</a>
-      <a href="aboutus.html">Om oss</a>
-      <a href="contact.html">Kontakt</a>
-      <a href="policy.html">Policy</a>
+    <div class="controls">
+      <input type="time" id="timePicker">
+      <select id="dayPicker">
+        <option value="">Idag</option>
+        <option value="0">Söndag</option>
+        <option value="1">Måndag</option>
+        <option value="2">Tisdag</option>
+        <option value="3">Onsdag</option>
+        <option value="4">Torsdag</option>
+        <option value="5">Fredag</option>
+        <option value="6">Lördag</option>
+      </select>
     </div>
   </nav>
   <div id="map"></div>
@@ -113,495 +96,9 @@
       maxZoom: 19
     }).addTo(map);
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-
-          const userMarker = L.circleMarker([userLat, userLng], {
-            radius: 8,
-            color: '#00ff00',
-            fillColor: '#00ff00',
-            fillOpacity: 0.8
-          }).addTo(map).bindPopup("Du är här!");
-
-          map.setView([userLat, userLng], 14);
-        },
-        error => {
-          console.warn("Kunde inte hämta platsen: ", error);
-        }
-      );
-    } else {
-      alert("Din webbläsare stöder inte geolokalisering.");
-    }
-
     const bars = [
-      {
-        name: "Östrahammar Bar",
-        lat: 59.3345,
-        lng: 18.0632,
-        beerPrice: 69,
-        happyHour: null
-      },
-      {
-        name: "Amici", //sheet R1
-        lat: 59.3076,
-        lng: 18.0771,
-        beerPrice: 59,
-        happyHour: {
-          from: "fram till",
-          to: "17.00",
-          price: 39
-        }
-      },
-      {
-        name: "Bara 2.Noll", //sheet R8
-        lat: 59.3072,
-        lng: 18.0832,
-        beerPrice: 45,
-        happyHour: {
-          from: "fram till",
-          to: "17.00",
-          price: 35
-        }
-      },
-      {
-        name: "Baras Gemenskap", //sheet R11
-        lat: 59.3186,
-        lng: 18.0702,
-        beerPrice: 65,
-        happyHour: {
-          from: "fram till",
-          to: "17.00",
-          price: 55
-        }
-      },
-      {
-        name: "Beefeater Götgatan", //sheet R13
-        lat: 59.3185,
-        lng: 18.0712,
-        beerPrice: 68,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 48
-        }
-      },
-      {
-        name: "Big Ben Pub", //sheet R15
-        lat: 59.3156,
-        lng: 18.0833,
-        beerPrice: 76,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 59
-        }
-      },
-      {
-        name: "Bistroteket", //sheet R16
-        lat: 59.3134,
-        lng: 18.0845,
-        beerPrice: 84,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 55
-        }
-      },
-      {
-        name: "Charles Dickens", //sheet R24
-        lat: 59.3146,
-        lng: 18.0755,
-        beerPrice: 49,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 39
-        }
-      },
-      {
-        name: "Crazy Horse", //sheet R27
-        lat: 59.3161,
-        lng: 18.0721,
-        beerPrice: 55,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 36
-        }
-      },
-      {
-        name: "Den Gröne Jägaren", //sheet R29
-        lat: 59.3134,
-        lng: 18.0735,
-        beerPrice: 68,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 48
-        }
-      },
-      {
-        name: "Fotöljen", //sheet R34
-        lat: 59.3194,
-        lng: 18.0705,
-        beerPrice: 79,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 59
-        }
-      },
-      {
-        name: "Hallen Södermalm", //sheet R37
-        lat: 59.3098,
-        lng: 18.0758,
-        beerPrice: 59,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 49
-        }
-      },
-      {
-        name: "Hirschenkeller (Götgatsbacken)", //sheet R41
-        lat: 59.3158,
-        lng: 18.0723,
-        beerPrice: 72,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 36
-        }
-      },
-      {
-        name: "Hirschenkeller (Hornsgatan)", //sheet R42
-        lat: 59.3165,
-        lng: 18.0417,
-        beerPrice: 42,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 32
-        }
-      },
-      {
-        name: "Holidays Götgatan", //sheet R43
-        lat: 59.3126,
-        lng: 18.0743,
-        beerPrice: 69,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 39
-        }
-      },
-      {
-        name: "Kellys Bar", //sheet R51
-        lat: 59.3145,
-        lng: 18.0744,
-        beerPrice: 59,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 39
-        }
-      },
-      {
-        name: "Krukan", //sheet R54
-        lat: 59.3171,
-        lng: 18.0553,
-        beerPrice: 65,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 49
-        }
-      },
-      {
-        name: "Mister Plankstek", //sheet R65
-        lat: 59.3152,
-        lng: 18.0828,
-        beerPrice: 59,
-        happyHour: {
-          from: "fram till",
-          to: "16.00",
-          price: 48
-        }
-      },
-      {
-        name: "No Name Bar", //sheet R69
-        lat: 59.3129,
-        lng: 18.0745,
-        beerPrice: 49,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 39
-        }
-      },
-      {
-        name: "Old Beefeater Inn", //sheet R70
-        lat: 59.3185,
-        lng: 18.0712,
-        beerPrice: 68,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 48
-        }
-      },
-      {
-        name: "Parken Söder", //sheet R73
-        lat: 59.3144,
-        lng: 18.0664,
-        beerPrice: 59,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 39
-        }
-      },
-      {
-        name: "Pinocchio kök och bar", //sheet R74
-        lat: 59.3131,
-        lng: 18.0771,
-        beerPrice: 49,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 35
-        }
-      },
-      {
-        name: "Retro Bar & Restaurant Hornstull", //sheet R80
-        lat: 59.3164,
-        lng: 18.0417,
-        beerPrice: 42,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 32
-        }
-      },
-      {
-        name: "Snaps", //sheet R83
-        lat: 59.3155,
-        lng: 18.0724,
-        beerPrice: 79,
-        happyHour: {
-          from: "fram till",
-          to: "22.00",
-          price: 72
-        }
-      },
-      {
-        name: "Stuket Resturang", //sheet R86
-        lat: 59.3128,
-        lng: 18.0656,
-        beerPrice: 68,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 38
-        }
-      },
-      {
-        name: "Svea La Regina", //sheet R87
-        lat: 59.3095,
-        lng: 18.0838,
-        beerPrice: 56,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 45
-        }
-      },
-      {
-        name: "Söderbönder", //sheet R88
-        lat: 59.3173,
-        lng: 18.0552,
-        beerPrice: 49,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 39
-        }
-      },
-      {
-        name: "Söderkällaren", //sheet R89
-        lat: 59.3150,
-        lng: 18.0757,
-        beerPrice: 49,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 39
-        }
-      },
-      {
-        name: "Södra Sidan Pub", //sheet R90
-        lat: 59.3146,
-        lng: 18.0757,
-        beerPrice: 49,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 33
-        }
-      },
-      {
-        name: "The Central Bar Folkungagatan", //sheet R91
-        lat: 59.3146,
-        lng: 18.0759,
-        beerPrice: 49,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 39
-        }
-      },
-      {
-        name: "The Central Bar Götgatan", //sheet R92
-        lat: 59.3112,
-        lng: 18.0745,
-        beerPrice: 48,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 39
-        }
-      },
-      {
-        name: "Timebar", //sheet R94
-        lat: 59.3153,
-        lng: 18.0333,
-        beerPrice: 59,
-        happyHour: {
-          from: "fram till",
-          to: "18.00",
-          price: 44
-        }
-      },
-      {
-        name: "Älgen bar", //sheet R102
-        lat: 59.3148,
-        lng: 18.0337,
-        beerPrice: 49,
-        happyHour: {
-          from: "fram till",
-          to: "19.00",
-          price: 39
-        }
-      },
-      {
-        name: "Ölstugan",
-        lat: 59.3312,
-        lng: 18.0704,
-        beerPrice: 89,
-        happyHour: {
-          from: "15:00",
-          to: "18:00",
-          price: 55
-        }
-      },
-      {
-        name: "Duderino",
-        lat: 57.7213,
-        lng: 12.9428,
-        beerPrice: 89,
-        happyHour: {
-          from: "15:00",
-          to: "18:00",
-          price: 55
-        }
-      },
-      {
-        name: "Brasserie Park",
-        lat: 57.7776,
-        lng: 14.1385,
-        beerPrice: 89,
-        happyHour: {
-          from: "15:00",
-          to: "18:00",
-          price: 55
-        }
-      },
-      {
-        name: "Mälarpaviljongen",
-        lat: 59.3276,
-        lng: 18.0418,
-        beerPrice: 75,
-        happyHour: null
-      },
-      {
-        name: "Ölbryggan",
-        lat: 59.3276,
-        lng: 18.0518,
-        beerPrice: 89,
-        happyHour: {
-          from: "16:00",
-          to: "19:00",
-          price: 59
-        }
-      },
-      {
-        name: "Söderkällaren",
-        lat: 59.31505403252609,
-        lng: 18.07571487680541,
-        beerPrice: 49,
-        happyHour: {
-          from: "16:00",
-          to: "18:00",
-          price: 39
-        }
-      },
-      {
-        name: "Kloster Bar & Deli",
-        lat:  59.3179944366191,
-        lng: 18.054435134682265,
-        beerPrice: 48,
-        happyHour: {
-          from: "13:00",
-          to: "19:00",
-          price: 43
-        }
-      },
-      {
-        name: "Dovas Hornstull",
-        lat: 59.31811343602271,
-        lng: 18.031895598422384,
-        beerPrice: 39,
-        happyHour: {
-          from: "13:00",
-          to: "18:00",
-          price: 35
-        }
-      },
-      {
-        name: "Bara Enkelt", //Sheet R9
-        lat: 59.31230112897268,
-        lng: 18.079257104810615,
-        beerPrice: 45,
-        happyHour: {
-          from: "15:00",
-          to: "17:00",
-          price: 39
-        }
-      },
-      {
-        name: "Baras Backe",
-        lat: 59.31650628290001,
-        lng: 18.07227248335206,
-        beerPrice: 49,
-        happyHour: {
-          from: "15:00",
-          to: "17:00",
-          price: 39
-        }
-      }
+      { name: "Exempelbar 1", lat: 59.33, lng: 18.06, beerPrice: 69, happyHour: { from: "15:00", to: "18:00", price: 49 } },
+      { name: "Exempelbar 2", lat: 59.32, lng: 18.07, beerPrice: 59, happyHour: { from: "16:00", to: "19:00", price: 39 } }
     ];
 
     let currentMarkers = [];
@@ -621,82 +118,56 @@
       return "red";
     }
 
-    function createMarker(bar, priceToShow, time) {
+    function createMarker(bar, priceToShow) {
       const color = getPriceColor(priceToShow);
-
       const priceIcon = L.divIcon({
         className: 'price-marker',
         html: `<div class="price-circle" style="background-color: ${color}">${priceToShow}</div>`,
         iconSize: [30, 30],
         iconAnchor: [15, 15]
       });
-
       const popup = `
         <strong>${bar.name}</strong><br>
         Ölpris just nu: ${priceToShow} kr<br>
-        ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Happy Hour: Inga erbjudanden"}
+        ${bar.happyHour ? "Happy Hour: " + bar.happyHour.from + " - " + bar.happyHour.to : "Inga erbjudanden"}
       `;
-
       const marker = L.marker([bar.lat, bar.lng], { icon: priceIcon }).addTo(map).bindPopup(popup);
       currentMarkers.push(marker);
     }
 
-function updateBarsAtTime(selectedTime) {
-  clearMarkers();
+    function updateBarsAtTime(selectedTime) {
+      clearMarkers();
 
-  const today = new Date();
-  const isWeekend = today.getDay() === 6 || today.getDay() === 0; // 0 = söndag, 6 = lördag
+      const selectedDay = document.getElementById("dayPicker").value;
+      const today = new Date();
+      const weekday = selectedDay !== "" ? parseInt(selectedDay) : today.getDay();
+      const isWeekend = weekday === 0 || weekday === 6;
 
-  bars.forEach(bar => {
-    let currentPrice = bar.beerPrice;
-
-    if (!isWeekend && bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
-      currentPrice = bar.happyHour.price;
+      bars.forEach(bar => {
+        let currentPrice = bar.beerPrice;
+        if (!isWeekend && bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
+          currentPrice = bar.happyHour.price;
+        }
+        createMarker(bar, currentPrice);
+      });
     }
-
-    createMarker(bar, currentPrice, selectedTime);
-  });
-}
 
     function setCurrentTimeAsDefault() {
       const now = new Date();
       const hours = now.getHours().toString().padStart(2, '0');
       const minutes = now.getMinutes().toString().padStart(2, '0');
-      const currentTime = `${hours}:${minutes}`;
-      document.getElementById("timePicker").value = currentTime;
+      document.getElementById("timePicker").value = `${hours}:${minutes}`;
     }
 
     setCurrentTimeAsDefault();
-    const initialTime = document.getElementById("timePicker").value;
-    updateBarsAtTime(initialTime);
+    updateBarsAtTime(document.getElementById("timePicker").value);
 
     document.getElementById("timePicker").addEventListener("change", (e) => {
       updateBarsAtTime(e.target.value);
     });
 
-    document.getElementById("hamburger").addEventListener("click", () => {
-      const menu = document.getElementById("menu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-    });
-
-    document.getElementById("cheapestBeer").addEventListener("click", () => {
-      let cheapestBar = bars[0];
-      let currentTime = document.getElementById("timePicker").value;
-      let lowestPrice = bars[0].beerPrice;
-
-      bars.forEach(bar => {
-        let price = bar.beerPrice;
-        if (bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
-          price = bar.happyHour.price;
-        }
-        if (price < lowestPrice) {
-          lowestPrice = price;
-          cheapestBar = bar;
-        }
-      });
-
-      map.setView([cheapestBar.lat, cheapestBar.lng], 16);
-      alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
+    document.getElementById("dayPicker").addEventListener("change", () => {
+      updateBarsAtTime(document.getElementById("timePicker").value);
     });
   </script>
 </body>
