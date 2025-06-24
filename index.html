@@ -40,7 +40,6 @@
       font-size: 14px;
     }
     .price-marker .price-circle {
-      background-color: red;
       color: white;
       border-radius: 50%;
       text-align: center;
@@ -52,38 +51,34 @@
       box-shadow: 0 0 4px rgba(0,0,0,0.3);
     }
     .hamburger {
-  z-index: 1002;
-  position: relative;
-  cursor: pointer;
-}
-
-.menu {
-  display: none;
-  position: absolute;
-  top: 60px;
-  left: 10px;
-  background-color: #444;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-  z-index: 1001;
-}
-
-.menu a {
-  display: block;
-  padding: 0.75rem 1rem;
-  color: white;
-  text-decoration: none;
-  border-bottom: 1px solid #666;
-}
-
-.menu a:last-child {
-  border-bottom: none;
-}
-
-.menu a:hover {
-  background-color: #555;
-}
+      z-index: 1002;
+      position: relative;
+      cursor: pointer;
+    }
+    .menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      background-color: #444;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      z-index: 1001;
+    }
+    .menu a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: white;
+      text-decoration: none;
+      border-bottom: 1px solid #666;
+    }
+    .menu a:last-child {
+      border-bottom: none;
+    }
+    .menu a:hover {
+      background-color: #555;
+    }
   </style>
 </head>
 <body>
@@ -134,14 +129,14 @@
 
     const bars = [
       {
-        name: "Östrahammar Bar", //visuell test bar
+        name: "Östrahammar Bar",
         lat: 59.3345,
         lng: 18.0632,
         beerPrice: 69,
         happyHour: null
       },
       {
-        name: "Ölstugan", //visuell test bar
+        name: "Ölstugan",
         lat: 59.3312,
         lng: 18.0704,
         beerPrice: 89,
@@ -152,7 +147,7 @@
         }
       },
       {
-        name: "Duderino", //visuell test bar
+        name: "Duderino",
         lat: 57.7213,
         lng: 12.9428,
         beerPrice: 89,
@@ -163,7 +158,7 @@
         }
       },
       {
-        name: "Brasserie Park", //visuell test bar
+        name: "Brasserie Park",
         lat: 57.7776,
         lng: 14.1385,
         beerPrice: 89,
@@ -174,14 +169,14 @@
         }
       },
       {
-        name: "Mälarpaviljongen", //visuell test bar
+        name: "Mälarpaviljongen",
         lat: 59.3276,
         lng: 18.0418,
         beerPrice: 75,
         happyHour: null
       },
       {
-        name: "Ölbryggan", //visuell test bar
+        name: "Ölbryggan",
         lat: 59.3276,
         lng: 18.0518,
         beerPrice: 89,
@@ -192,7 +187,7 @@
         }
       },
       {
-        name: "Söderkällaren", //ny inlagd
+        name: "Söderkällaren",
         lat: 59.31505403252609,
         lng: 18.07571487680541,
         beerPrice: 49,
@@ -203,7 +198,7 @@
         }
       },
       {
-        name: "Kloster Bar & Deli", //ny inlagd 2
+        name: "Kloster Bar & Deli",
         lat:  59.3179944366191,
         lng: 18.054435134682265,
         beerPrice: 48,
@@ -214,7 +209,7 @@
         }
       },
       {
-        name: "Dovas Hornstull", //ny inlagd 3
+        name: "Dovas Hornstull",
         lat: 59.31811343602271,
         lng: 18.031895598422384,
         beerPrice: 39,
@@ -225,7 +220,7 @@
         }
       },
       {
-        name: "Bara Enkelt", //ny inlagd 4
+        name: "Bara Enkelt",
         lat: 59.31230112897268,
         lng: 18.079257104810615,
         beerPrice: 45,
@@ -236,7 +231,7 @@
         }
       },
       {
-        name: "Baras Backe", //ny inlagd 5
+        name: "Baras Backe",
         lat: 59.31650628290001,
         lng: 18.07227248335206,
         beerPrice: 49,
@@ -259,10 +254,18 @@
       currentMarkers = [];
     }
 
+    function getColorByPrice(price) {
+      if (price <= 40) return 'green';
+      if (price <= 65) return 'yellow';
+      return 'red';
+    }
+
     function createMarker(bar, priceToShow, time) {
+      const color = getColorByPrice(priceToShow);
+
       const priceIcon = L.divIcon({
         className: 'price-marker',
-        html: `<div class="price-circle">${priceToShow}</div>`,
+        html: `<div class="price-circle" style="background-color: ${color};">${priceToShow}</div>`,
         iconSize: [30, 30],
         iconAnchor: [15, 15]
       });
@@ -278,18 +281,18 @@
     }
 
     function updateBarsAtTime(selectedTime) {
-  clearMarkers();
+      clearMarkers();
 
-  bars.forEach(bar => {
-    let currentPrice = bar.beerPrice;
+      bars.forEach(bar => {
+        let currentPrice = bar.beerPrice;
 
-    if (bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
-      currentPrice = bar.happyHour.price;
+        if (bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
+          currentPrice = bar.happyHour.price;
+        }
+
+        createMarker(bar, currentPrice, selectedTime);
+      });
     }
-
-    createMarker(bar, currentPrice, selectedTime);
-  });
-}
 
     const initialTime = document.getElementById("timePicker").value;
     updateBarsAtTime(initialTime);
@@ -298,33 +301,31 @@
       updateBarsAtTime(e.target.value);
     });
 
-
     document.getElementById("hamburger").addEventListener("click", () => {
-  const menu = document.getElementById("menu");
-  menu.style.display = menu.style.display === "block" ? "none" : "block";
-});
+      const menu = document.getElementById("menu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    });
 
-// Visa bar med billigast öl när man klickar på knappen
-document.getElementById("cheapestBeer").addEventListener("click", () => {
-  let cheapestBar = bars[0];
-  let currentTime = document.getElementById("timePicker").value;
-  let lowestPrice = bars[0].beerPrice;
+    // Visa bar med billigast öl när man klickar på knappen
+    document.getElementById("cheapestBeer").addEventListener("click", () => {
+      let cheapestBar = bars[0];
+      let currentTime = document.getElementById("timePicker").value;
+      let lowestPrice = bars[0].beerPrice;
 
-  bars.forEach(bar => {
-    let price = bar.beerPrice;
-    if (bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
-      price = bar.happyHour.price;
-    }
-    if (price < lowestPrice) {
-      lowestPrice = price;
-      cheapestBar = bar;
-    }
-  });
+      bars.forEach(bar => {
+        let price = bar.beerPrice;
+        if (bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
+          price = bar.happyHour.price;
+        }
+        if (price < lowestPrice) {
+          lowestPrice = price;
+          cheapestBar = bar;
+        }
+      });
 
-  map.setView([cheapestBar.lat, cheapestBar.lng], 16);
-  alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
-});
-
+      map.setView([cheapestBar.lat, cheapestBar.lng], 16);
+      alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
+    });
   </script>
 </body>
 </html>
