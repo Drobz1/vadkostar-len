@@ -49,14 +49,13 @@
       font-weight: bold;
       font-size: 14px;
       box-shadow: 0 0 4px rgba(0,0,0,0.3);
-      text-shadow: 1px 1px 2px black; /* här är outline */
+      text-shadow: 0 0 2px black, 0 0 1px black;
     }
     .hamburger {
       z-index: 1002;
       position: relative;
       cursor: pointer;
     }
-
     .menu {
       display: none;
       position: absolute;
@@ -68,7 +67,6 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
       z-index: 1001;
     }
-
     .menu a {
       display: block;
       padding: 0.75rem 1rem;
@@ -76,11 +74,9 @@
       text-decoration: none;
       border-bottom: 1px solid #666;
     }
-
     .menu a:last-child {
       border-bottom: none;
     }
-
     .menu a:hover {
       background-color: #555;
     }
@@ -90,7 +86,7 @@
   <nav>
     <div class="hamburger" id="hamburger">&#9776;</div>
     <div class="title">vadkostarölen.se</div>
-    <input type="time" id="timePicker" value="18:00">
+    <input type="time" id="timePicker">
     <div class="menu" id="menu">
       <a href="#" id="cheapestBeer">Ranka billigast öl</a>
       <a href="aboutus.html">Om oss</a>
@@ -134,14 +130,14 @@
 
     const bars = [
       {
-        name: "Östrahammar Bar", 
+        name: "Östrahammar Bar",
         lat: 59.3345,
         lng: 18.0632,
         beerPrice: 69,
         happyHour: null
       },
       {
-        name: "Ölstugan", 
+        name: "Ölstugan",
         lat: 59.3312,
         lng: 18.0704,
         beerPrice: 89,
@@ -152,7 +148,7 @@
         }
       },
       {
-        name: "Duderino", 
+        name: "Duderino",
         lat: 57.7213,
         lng: 12.9428,
         beerPrice: 89,
@@ -163,7 +159,7 @@
         }
       },
       {
-        name: "Brasserie Park", 
+        name: "Brasserie Park",
         lat: 57.7776,
         lng: 14.1385,
         beerPrice: 89,
@@ -174,14 +170,14 @@
         }
       },
       {
-        name: "Mälarpaviljongen", 
+        name: "Mälarpaviljongen",
         lat: 59.3276,
         lng: 18.0418,
         beerPrice: 75,
         happyHour: null
       },
       {
-        name: "Ölbryggan", 
+        name: "Ölbryggan",
         lat: 59.3276,
         lng: 18.0518,
         beerPrice: 89,
@@ -192,7 +188,7 @@
         }
       },
       {
-        name: "Söderkällaren", 
+        name: "Söderkällaren",
         lat: 59.31505403252609,
         lng: 18.07571487680541,
         beerPrice: 49,
@@ -203,7 +199,7 @@
         }
       },
       {
-        name: "Kloster Bar & Deli", 
+        name: "Kloster Bar & Deli",
         lat:  59.3179944366191,
         lng: 18.054435134682265,
         beerPrice: 48,
@@ -214,7 +210,7 @@
         }
       },
       {
-        name: "Dovas Hornstull", 
+        name: "Dovas Hornstull",
         lat: 59.31811343602271,
         lng: 18.031895598422384,
         beerPrice: 39,
@@ -225,7 +221,7 @@
         }
       },
       {
-        name: "Bara Enkelt", 
+        name: "Bara Enkelt",
         lat: 59.31230112897268,
         lng: 18.079257104810615,
         beerPrice: 45,
@@ -236,7 +232,7 @@
         }
       },
       {
-        name: "Baras Backe", 
+        name: "Baras Backe",
         lat: 59.31650628290001,
         lng: 18.07227248335206,
         beerPrice: 49,
@@ -259,17 +255,18 @@
       currentMarkers = [];
     }
 
-    function getColorForPrice(price) {
-      if (price <= 40) return 'limegreen';
-      else if (price <= 65) return 'orange';
-      else return 'red';
+    function getPriceColor(price) {
+      if (price <= 40) return "limegreen";
+      if (price <= 65) return "orange";
+      return "red";
     }
 
     function createMarker(bar, priceToShow, time) {
-      const color = getColorForPrice(priceToShow);
+      const color = getPriceColor(priceToShow);
+
       const priceIcon = L.divIcon({
         className: 'price-marker',
-        html: `<div class="price-circle" style="background-color:${color};">${priceToShow}</div>`,
+        html: `<div class="price-circle" style="background-color: ${color}">${priceToShow}</div>`,
         iconSize: [30, 30],
         iconAnchor: [15, 15]
       });
@@ -277,7 +274,7 @@
       const popup = `
         <strong>${bar.name}</strong><br>
         Ölpris just nu: ${priceToShow} kr<br>
-        ${bar.happyHour ? `Happy Hour: Fram till ${bar.happyHour.to}` : "Happy Hour: Inga erbjudanden"}
+        ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Happy Hour: Inga erbjudanden"}
       `;
 
       const marker = L.marker([bar.lat, bar.lng], { icon: priceIcon }).addTo(map).bindPopup(popup);
@@ -298,6 +295,15 @@
       });
     }
 
+    function setCurrentTimeAsDefault() {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const currentTime = `${hours}:${minutes}`;
+      document.getElementById("timePicker").value = currentTime;
+    }
+
+    setCurrentTimeAsDefault();
     const initialTime = document.getElementById("timePicker").value;
     updateBarsAtTime(initialTime);
 
@@ -310,7 +316,6 @@
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     });
 
-    // Visa bar med billigast öl när man klickar på knappen
     document.getElementById("cheapestBeer").addEventListener("click", () => {
       let cheapestBar = bars[0];
       let currentTime = document.getElementById("timePicker").value;
