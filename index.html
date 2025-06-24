@@ -641,19 +641,22 @@
       currentMarkers.push(marker);
     }
 
-    function updateBarsAtTime(selectedTime) {
-      clearMarkers();
+function updateBarsAtTime(selectedTime) {
+  clearMarkers();
 
-      bars.forEach(bar => {
-        let currentPrice = bar.beerPrice;
+  const today = new Date();
+  const isWeekend = today.getDay() === 6 || today.getDay() === 0; // 0 = söndag, 6 = lördag
 
-        if (bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
-          currentPrice = bar.happyHour.price;
-        }
+  bars.forEach(bar => {
+    let currentPrice = bar.beerPrice;
 
-        createMarker(bar, currentPrice, selectedTime);
-      });
+    if (!isWeekend && bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
+      currentPrice = bar.happyHour.price;
     }
+
+    createMarker(bar, currentPrice, selectedTime);
+  });
+}
 
     function setCurrentTimeAsDefault() {
       const now = new Date();
