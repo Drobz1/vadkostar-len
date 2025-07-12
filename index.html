@@ -304,7 +304,7 @@
       const popup = `
         <strong>${bar.name}</strong><br>
         ${isOpen ? `Ölpris just nu: ${priceToShow} kr` : "Stängt"}<br>
-        ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Happy Hour: Inga erbjudanden"}
+        ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Happy Hour: Gäller endast på vardagar!"}
       `;
 
       const marker = L.marker([bar.lat, bar.lng], { icon: priceIcon }).addTo(map).bindPopup(popup);
