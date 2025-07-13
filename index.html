@@ -374,7 +374,7 @@
       <strong>${bar.name}</strong><br>
       ${isOpen ? `Ölpris just nu: ${priceToShow} kr` : "Stängt"}<br>
       ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Happy Hour: Gäller endast på vardagar!"}<br>
-      ${bar.link ? `<a href="${bar.link}" target="_blank" rel="noopener noreferrer">Visa på Google Maps</a>` : ""}
+      ${bar.Links ? `<a href="${bar.Links}" target="_blank" rel="noopener noreferrer">Visa på Google Maps</a>` : ""}
     `;
 
     const marker = L.marker([bar.lat, bar.lng], {
