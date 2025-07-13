@@ -374,7 +374,7 @@
       <strong>${bar.name}</strong><br>
       ${isOpen ? `Ölpris just nu: ${priceToShow} kr` : "Stängt"}<br>
       ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Happy Hour: Gäller endast på vardagar!"}<br>
-      ${bar.links ? `<a href="${bar.links}" target="_blank" rel="noopener noreferrer">Visa på Google Maps</a>` : ""}
+      ${bar.link ? `<a href="${bar.link}" target="_blank" rel="noopener noreferrer">Visa på Google</a>` : ""}
     `;
 
     const marker = L.marker([bar.lat, bar.lng], {
@@ -507,6 +507,7 @@
               to: row.Happyframtill,
               price: parseFloat(row.HappyPris)
             } : null,
+            link: row.Links || null,
             // Behåll öppettider i hela objektet, så vi kan läsa per dag senare i updateBarsAtTime
             OpenSun: row.OpenSun,
             ClosedSun: row.ClosedSun,

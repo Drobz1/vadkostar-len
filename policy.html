@@ -3,43 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Under Konstruktion</title>
+  <title>Policy - vadkostarölen.se</title>
   <style>
     body {
-      background-color: #f9f9f9;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      font-family: sans-serif;
+      background-color: #f8f8f8;
       color: #333;
     }
 
-    .construction-message {
-      text-align: center;
-      padding: 30px;
-      background-color: #fff3cd;
-      border: 2px dashed #ffc107;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    nav {
+      background-color: #6d6a6a;
+      color: white;
+      padding: 1rem;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .construction-message h1 {
-      font-size: 2.5rem;
-      color: #d39e00;
-      margin-bottom: 10px;
+    nav .title {
+      font-size: 1.2rem;
     }
 
-    .construction-message p {
-      font-size: 1.1rem;
+    .hamburger {
+      z-index: 1002;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      background-color: #444;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      z-index: 1001;
+    }
+
+    .menu a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: white;
+      text-decoration: none;
+      border-bottom: 1px solid #666;
+    }
+
+    .menu a:last-child {
+      border-bottom: none;
+    }
+
+    .menu a:hover {
+      background-color: #555;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1, h2, h3 {
+      color: #222;
+      margin-top: 2rem;
+    }
+
+    ul {
+      padding-left: 1.2rem;
     }
   </style>
 </head>
 <body>
-  <div class="construction-message">
-    <h1>Under Konstruktion</h1>
-    <p>Den här sidan är inte klar ännu. Kom tillbaka senare!</p>
-  </div>
+  <nav>
+    <div class="hamburger" id="hamburger">&#9776;</div>
+    <div class="title">vadkostarölen.se</div>
+    <div class="menu" id="menu">
+      <a href="index.html">Tillbaka till kartan</a>
+      <a href="aboutus.html">Om oss</a>
+      <a href="contact.html">Kontakt</a>
+      <a href="policy.html">Policy</a>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Policy</h1>
+
+    <h2>1. Användning av Tjänsten</h2>
+    <ul>
+      <li>vadkostarölen.se är en gratis webbplats som visar ölpriser på barer i Stockholm.</li>
+      <li>Informationen tillhandahålls som den är, utan garanti för att priserna alltid är aktuella eller korrekta.</li>
+      <li>Användare uppmanas att dubbelkolla med baren innan besök.</li>
+    </ul>
+
+    <h2>2. Ansvarsfriskrivning</h2>
+    <ul>
+      <li>Vi ansvarar inte för eventuella felaktigheter, prisändringar eller missförstånd som kan uppstå genom användning av webbplatsen.</li>
+      <li>Alla priser är insamlade manuellt och kan ändras utan förvarning.</li>
+      <li>Vi tar inte hänsyn till undantag som gäller under helgdagar, semestertider eller särskilda evenemang.</li>
+      <li>Denna sida är ett hobbyprojekt skapat för att hjälpa folk hitta billig öl i Stockholm.</li>
+    </ul>
+
+    <h2>3. Immateriella Rättigheter</h2>
+    <ul>
+      <li>Allt innehåll på sidan - inklusive logotyp och design - tillhör vadkostarölen.se.</li>
+      <li>Får inte kopieras, återpubliceras eller användas i kommersiellt syfte utan skriftligt tillstånd.</li>
+    </ul>
+
+    <h2>4. Integritet & Platsdata</h2>
+    <ul>
+      <li>Vi samlar inte in personuppgifter som namn eller e-postadress.</li>
+      <li>Vi använder inte tredjepartsspårning eller cookies från annonsörer.</li>
+      <li>Webbplatsen kan be om tillgång till din plats för att visa barer nära dig.</li>
+      <li>Platsdata används endast lokalt i din webbläsare och sparas inte av oss.</li>
+      <li>Du kan neka platsåtkomst – tjänsten fungerar ändå, men blir mindre precis.</li>
+      <li>Vi (vadkostarölen.se) använder lokal lagring (LocalStorage) i din webbläsare för att komma ihåg om du har genomfört vår tutorial. Informationen lagras endast lokalt och används inte för spårning eller marknadsföring. Du kan när som helst ta bort informationen genom att rensa webbläsarens lagrade data.</li>
+    </ul>
+
+    <h2>5. Om Ölstorlek</h2>
+    <ul>
+      <li>Vi fokuserar främst på priser för starköl (40 cl).</li>
+      <li>Om andra öltyper eller storlekar anges (t.ex. 50 cl, mellanöl eller alkoholfritt), försöker vi tydliggöra det i barens information.</li>
+      <li>Vår prioritet är att visa billigaste starköl i standardstorlek för en rättvis jämförelse mellan barer.</li>
+    </ul>
+
+    <h2>6. Rättelser & Kontakt</h2>
+    <ul>
+      <li>Vi gör vårt bästa för att hålla informationen uppdaterad.</li>
+      <li>Hittar du ett fel? Skicka gärna ett DM till oss på Instagram: <strong>@vadkostarolen.se</strong>. Vi uppskattar all hjälp!</li>
+    </ul>
+
+
+
+    <center><p>Uppdaterad 2025-06-16</p></center>
+  </main>
+
+  <script>
+    document.getElementById("hamburger").addEventListener("click", () => {
+      const menu = document.getElementById("menu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    });
+  </script>
 </body>
 </html>
