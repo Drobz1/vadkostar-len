@@ -374,7 +374,7 @@
       <strong>${bar.name}</strong><br>
       ${isOpen ? `Ölpris just nu: ${priceToShow} kr` : "Stängt"}<br>
       ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Happy Hour: Gäller endast på vardagar!"}<br>
-      ${bar.Links ? `<a href="${bar.Links}" target="_blank" rel="noopener noreferrer">Visa på Google Maps</a>` : ""}
+      ${bar.links ? `<a href="${bar.links}" target="_blank" rel="noopener noreferrer">Visa på Google Maps</a>` : ""}
     `;
 
     const marker = L.marker([bar.lat, bar.lng], {
@@ -502,6 +502,7 @@
             lat: parseFloat(row.Lat),
             lng: parseFloat(row.Lng),
             beerPrice: parseFloat(row.VanligtPris),
+            links: parseFloat(row.Links)
             happyHour: row.HappyPris && row.HappyHourFrån && row.Happyframtill ? {
               from: row.HappyHourFrån,
               to: row.Happyframtill,
