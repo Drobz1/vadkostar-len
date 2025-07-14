@@ -347,7 +347,7 @@
 
   const dayKeys = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-  function createMarker(bar, priceToShow, time, isOpen) {
+    function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     const priceText = isOpen ? priceToShow : "❌";
     let color;
     let zIndex;
@@ -373,7 +373,7 @@
     const popup = `
       <strong>${bar.name}</strong><br>
       ${isOpen ? `Ölpris just nu: ${priceToShow} kr` : "Stängt"}<br>
-      ${bar.happyHour ? `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}` : "Happy Hour: Gäller endast på vardagar!"}<br>
+      ${(bar.happyHour ? (isWeekend ? "Happy Hour: Gäller endast på vardagar!" : `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}`) : "Ingen Happy Hour")}<br>
       ${bar.link ? `<a href="${bar.link}" target="_blank" rel="noopener noreferrer">Visa på Google</a>` : ""}
     `;
 
@@ -402,7 +402,7 @@
       const openTo = bar[`Closed${dayKeys[todayIndex]}`];
       const isOpen = isOpenAtTime(selectedTime, openFrom, openTo);
 
-      createMarker(bar, currentPrice, selectedTime, isOpen);
+      createMarker(bar, currentPrice, selectedTime, isOpen, isWeekend);
     });
   }
 
@@ -502,10 +502,10 @@
             lat: parseFloat(row.Lat),
             lng: parseFloat(row.Lng),
             beerPrice: parseFloat(row.VanligtPris),
-            happyHour: row.HappyPris && row.HappyHourFrån && row.Happyframtill ? {
-              from: row.HappyHourFrån,
-              to: row.Happyframtill,
-              price: parseFloat(row.HappyPris)
+            happyHour: row.HappyPris ? {
+            from: row[`Open${dayKeys[new Date().getDay()]}`], // barens öppningstid idag
+            to: row.Happyframtill, // eller ge det ett nytt namn t.ex. HappyHourEnd
+            price: parseFloat(row.HappyPris)
             } : null,
             link: row.Links || null,
             // Behåll öppettider i hela objektet, så vi kan läsa per dag senare i updateBarsAtTime
