@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Policy - vadkostarölen.se</title>
   <style>
-    body {
+    body, html {
       margin: 0;
+      padding: 0;
       font-family: sans-serif;
-      background-color: #f8f8f8;
-      color: #333;
+      background-color: #1e1e1e;
+      color: white;
     }
 
     nav {
@@ -60,19 +61,31 @@
       background-color: #555;
     }
 
-    main {
+    .content {
       padding: 2rem;
       max-width: 800px;
-      margin: auto;
+      margin: 0 auto;
     }
 
     h1, h2, h3 {
-      color: #222;
       margin-top: 2rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #ffcc00;
+    }
+
+    h2 {
+      color: #ffcc00;
     }
 
     ul {
       padding-left: 1.2rem;
+    }
+
+    p {
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -81,14 +94,14 @@
     <div class="hamburger" id="hamburger">&#9776;</div>
     <div class="title">vadkostarölen.se</div>
     <div class="menu" id="menu">
-      <a href="index.html">Tillbaka till kartan</a>
+      <a href="index.html">Ölkarta</a>
       <a href="aboutus.html">Om oss</a>
       <a href="contact.html">Kontakt</a>
       <a href="policy.html">Policy</a>
     </div>
   </nav>
 
-  <main>
+  <div class="content">
     <h1>Policy</h1>
 
     <h2>1. Användning av Tjänsten</h2>
@@ -132,13 +145,19 @@
     <h2>6. Rättelser & Kontakt</h2>
     <ul>
       <li>Vi gör vårt bästa för att hålla informationen uppdaterad.</li>
-      <li>Hittar du ett fel? Skicka gärna ett DM till oss på Instagram: <strong>@vadkostarolen.se</strong>. Vi uppskattar all hjälp!</li>
+      <li>Hittar du ett fel? Skicka gärna ett DM till oss på Instagram: <a href="https://www.instagram.com/vadkostarolen.se" target="_blank" rel="noopener noreferrer"><strong>@vadkostarolen.se</strong></a>. Vi uppskattar all hjälp!</li>
+    </ul>
+
+    <h2>7. Ändringar i Policyn</h2>
+    <ul>
+      <li>Vi kan komma att uppdatera denna policy utan föregående meddelande.</li>
+      <li>Senaste uppdateringsdatum visas längst ner på sidan.</li>
+      <li>Vi uppmanar användare att läsa policyn regelbundet för att hålla sig informerade.</li>
     </ul>
 
 
-
-    <center><p>Uppdaterad 2025-06-16</p></center>
-  </main>
+    <center><p>Uppdaterad 2025-07-15</p></center>
+  </div>
 
   <script>
     document.getElementById("hamburger").addEventListener("click", () => {

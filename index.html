@@ -4,8 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="vadkostarolenlogga48x.png">
+  <meta name="description" content="Jämför ölpriser och Happy Hour-tider på barer runt Stockholm. Hitta billigaste ölen snabbt – uppdaterat av oss och våra följare. Instagram: vadkostarölen.se.">
   <title>Stockholm Ölkarta</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Vad Kostar Ölen",
+  "url": "https://vadkostarölen.se",
+  "logo": "https://vadkostarölen.se/vadkostarolenlogga112x112.png"
+  }
+</script>
+
   <style>
     body, html {
       margin: 0;
@@ -94,7 +105,6 @@
        -1px 0px 0 #000;
     }
 
-    /* Flytande ikon längst ner till höger */
     #locateIcon {
       position: fixed;
       bottom: 20px;
@@ -135,7 +145,17 @@
 
       #tutorialOverlay p,
       #stepText {
-        font-size: 0.95rem;
+        font-size: 1.05rem;
+        line-height: 1.4;
+        padding: 0.75rem;
+        max-width: 90%;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 600px) {
+      #stepText {
+        font-size: 0.9rem;
+        }
       }
 
       .highlightBox {
@@ -196,7 +216,7 @@
 <script>
   const tutorialSteps = [
     {
-      text: 'Här ändrar du tiden för att se priser vid olika tider på dagen.',
+      text: 'Här ändrar du klockslaget för att se priser vid olika tider idag. Happy hour-tider och öppettider gäller för dagens datum.',
       targetId: 'timePicker'
     },
     {
@@ -476,7 +496,6 @@
     }
   });
 
-  // Tangentbordsstöd (Enter och Space) för ikonen
   locateIcon.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") {
       locateIcon.click();
@@ -503,12 +522,11 @@
             lng: parseFloat(row.Lng),
             beerPrice: parseFloat(row.VanligtPris),
             happyHour: row.HappyPris ? {
-            from: row[`Open${dayKeys[new Date().getDay()]}`], // barens öppningstid idag
-            to: row.Happyframtill, // eller ge det ett nytt namn t.ex. HappyHourEnd
+            from: row[`Open${dayKeys[new Date().getDay()]}`],
+            to: row.Happyframtill,
             price: parseFloat(row.HappyPris)
             } : null,
             link: row.Links || null,
-            // Behåll öppettider i hela objektet, så vi kan läsa per dag senare i updateBarsAtTime
             OpenSun: row.OpenSun,
             ClosedSun: row.ClosedSun,
             OpenMon: row.OpenMon,
