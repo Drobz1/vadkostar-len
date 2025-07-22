@@ -162,6 +162,53 @@
         border-width: 2px;
       }
     }
+
+    /* DK on - off och språkval css */
+    :root {
+  --bg-color: white;
+  --text-color: black;
+  --nav-color: #6d6a6a;
+}
+body.dark {
+  --bg-color: #121212;
+  --text-color: #f0f0f0;
+  --nav-color: #222;
+}
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+nav {
+  background-color: var(--nav-color);
+}
+.settings-btn {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+}
+.settings-panel {
+  position: fixed;
+  top: 60px;
+  right: 10px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid #ffffff;
+  padding: 1rem;
+  z-index: 1003;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  display: none;
+}
+.settings-panel label {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+.settings-panel select {
+  padding: 0.3rem;
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -170,7 +217,7 @@
 <div id="tutorialOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); color: white; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
   <div id="tutorialStep" style="max-width: 90%; width: 500px;">
     <h2 style="font-size: 1.5rem;">Välkommen till vadkostarölen.se!</h2>
-    <p style="font-size: 1rem;">Vi visar dig snabbt hur du använder kartan.</p>
+    <p style="font-size: 1rem;">Vi visar dig snabbt hur du använder hemsidan.</p>
     <button id="startTutorial" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Starta rundvandring</button>
   </div>
 
@@ -190,9 +237,24 @@
   <div class="menu" id="menu">
     <a href="#" id="cheapestBeer">Ranka billigast öl</a>
     <a href="aboutus.html">Om oss</a>
-    <a href="contact.html">Kontakt</a>
     <a href="policy.html">Policy</a>
+    <a href="updates.html">Uppdateringar</a>
   </div>
+
+  <button class="settings-btn" id="settingsToggle" title="Inställningar">⚙️</button>
+<div class="settings-panel" id="settingsPanel">
+  <label>
+    🌙 Dark Mode:
+    <input type="checkbox" id="darkModeToggle" />
+  </label>
+  <label>
+    🌐 Språk:
+    <select id="languageSelect">
+      <option value="sv">Svenska</option>
+      <option value="en">English</option>
+    </select>
+  </label>
+</div>
 </nav>
 
 <div id="map"></div>
@@ -214,16 +276,21 @@
 
 
 <script>
-  const tutorialSteps = [
-    {
-      text: 'Här ändrar du klockslaget för att se priser vid olika tider idag. Happy hour-tider och öppettider gäller för dagens datum.',
-      targetId: 'timePicker'
-    },
-    {
-      text: 'Här öppnar du menyn med fler alternativ.',
-      targetId: 'hamburger'
-    }
-  ];
+const tutorialSteps = [
+  {
+    text: 'Här kan du ändra inställningar som mörkt läge och språk.',
+    targetId: 'settingsToggle'
+  },
+  {
+    text: 'Här ändrar du klockslaget för att se priser vid olika tider idag. Happy hour-tider och öppettider gäller för dagens datum.',
+    targetId: 'timePicker'
+  },
+  {
+    text: 'Här öppnar du menyn med fler alternativ.',
+    targetId: 'hamburger'
+  }
+];
+
 
   let currentStep = 0;
   let highlightBox;
@@ -301,8 +368,8 @@
 
         userMarker = L.circleMarker([userLat, userLng], {
           radius: 8,
-          color: '#00ff00',
-          fillColor: '#00ff00',
+          color: '#0096ff',
+          fillColor: '#0096ff',
           fillOpacity: 0.8
         }).addTo(map).bindPopup("Du är här!");
 
@@ -367,43 +434,61 @@
 
   const dayKeys = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-    function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
-    const priceText = isOpen ? priceToShow : "❌";
-    let color;
-    let zIndex;
+function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
+  const priceText = isOpen ? priceToShow : "❌";
+  let color;
+  let zIndex;
 
-    if (isOpen) {
-      color = getPriceColor(priceToShow);
-      if (color === "limegreen") zIndex = 3000;
-      else if (color === "orange") zIndex = 2000;
-      else if (color === "red") zIndex = 1000;
-      else zIndex = 500;
-    } else {
-      color = "gray";
-      zIndex = 0;
-    }
-
-    const priceIcon = L.divIcon({
-      className: 'price-marker',
-      html: `<div class="price-circle" style="background-color: ${color}">${priceText}</div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
-    });
-
-    const popup = `
-      <strong>${bar.name}</strong><br>
-      ${isOpen ? `Ölpris just nu: ${priceToShow} kr` : "Stängt"}<br>
-      ${(bar.happyHour ? (isWeekend ? "Happy Hour: Gäller endast på vardagar!" : `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}`) : "Ingen Happy Hour")}<br>
-      ${bar.link ? `<a href="${bar.link}" target="_blank" rel="noopener noreferrer">Visa på Google</a>` : ""}
-    `;
-
-    const marker = L.marker([bar.lat, bar.lng], {
-      icon: priceIcon,
-      zIndexOffset: zIndex
-    }).addTo(map).bindPopup(popup);
-
-    currentMarkers.push(marker);
+  if (isOpen) {
+    color = getPriceColor(priceToShow);
+    zIndex = color === "limegreen" ? 3000 : color === "orange" ? 2000 : 1000;
+  } else {
+    color = "gray";
+    zIndex = 0;
   }
+
+  const priceIcon = L.divIcon({
+    className: 'price-marker',
+    html: `<div class="price-circle" style="background-color: ${color}">${priceText}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+
+  const todayIndex = new Date().getDay();
+  const openFrom = bar[`Open${dayKeys[todayIndex]}`];
+  const openTo = bar[`Closed${dayKeys[todayIndex]}`];
+  const openingTimeText = openFrom && openTo ? `${openFrom} - ${openTo}` : "Okänt";
+
+  let popupHTML = `<strong>${bar.name}</strong><br>`;
+
+  if (isOpen) {
+    popupHTML += `Stängs - ${openTo}<br>`;
+    popupHTML += `Ölpris just nu: ${priceToShow} kr<br>`;
+
+    if (!isWeekend && bar.happyHour) {
+      popupHTML += `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}<br>`;
+    } else if (!bar.happyHour) {
+      popupHTML += `Ingen Happy Hour<br>`;
+    } else {
+      popupHTML += `Happy Hour: Gäller endast vardagar!<br>`;
+    }
+  } else {
+    popupHTML += `Stängt - öppnar ${openFrom}<br>`;
+    popupHTML += `Ingen Happy Hour<br>`;
+  }
+
+  if (bar.link) {
+    popupHTML += `<a href="${bar.link}" target="_blank" rel="noopener noreferrer">Visa på Google</a>`;
+  }
+
+  const marker = L.marker([bar.lat, bar.lng], {
+    icon: priceIcon,
+    zIndexOffset: zIndex
+  }).addTo(map).bindPopup(popupHTML);
+
+  currentMarkers.push(marker);
+}
+
 
   function updateBarsAtTime(selectedTime) {
     clearMarkers();
@@ -552,6 +637,54 @@
           console.error("Fel vid hämtning eller parsing av CSV:", err);
         });
     });
+</script>
+
+<script>
+  const toggleBtn = document.getElementById("settingsToggle");
+  const panel = document.getElementById("settingsPanel");
+  const darkToggle = document.getElementById("darkModeToggle");
+  const langSelect = document.getElementById("languageSelect");
+
+  // Öppna/stäng kugghjulspanelen
+  toggleBtn.addEventListener("click", () => {
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+  });
+
+  // Dark mode logik
+  darkToggle.addEventListener("change", () => {
+    if (darkToggle.checked) {
+      document.body.classList.add("dark");
+      localStorage.setItem("darkMode", "true");
+    } else {
+      document.body.classList.remove("dark");
+      localStorage.setItem("darkMode", "false");
+    }
+  });
+
+  // Språkbyte
+  langSelect.addEventListener("change", () => {
+    const val = langSelect.value;
+    if (val === "en") {
+      window.location.href = "index-en.html";
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+
+  // Ladda inställningar från localStorage
+  window.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark");
+      darkToggle.checked = true;
+    }
+
+    const currentPath = window.location.pathname;
+    if (currentPath.includes("index-en")) {
+      langSelect.value = "en";
+    } else {
+      langSelect.value = "sv";
+    }
+  });
 </script>
 </body>
 </html>
