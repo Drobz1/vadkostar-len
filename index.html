@@ -288,7 +288,17 @@ const tutorialSteps = [
   {
     text: 'Här öppnar du menyn med fler alternativ.',
     targetId: 'hamburger'
-  }
+  },
+{
+  text: `
+    Färgerna på kartan visar prisnivån på öl just nu:<br>
+    <strong style="color: limegreen;">Limegrön</strong> = Pris upp till och med 40 kr<br>
+    <strong style="color: orange;">Orange</strong> = Pris över 40 kr och upp till 65 kr<br>
+    <strong style="color: red;">Röd</strong> = Pris över 65 kr<br><br>
+    När du klickar på "Ranka billigast öl" i vår meny zoomar kartan in på baren med billigast öl.
+  `,
+  targetId: 'map'
+}
 ];
 
 
@@ -462,7 +472,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   let popupHTML = `<strong>${bar.name}</strong><br>`;
 
   if (isOpen) {
-    popupHTML += `Stängs - ${openTo}<br>`;
+    popupHTML += `Stänger - ${openTo}<br>`;
     popupHTML += `Ölpris just nu: ${priceToShow} kr<br>`;
 
     if (!isWeekend && bar.happyHour) {
@@ -671,7 +681,6 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     }
   });
 
-  // Ladda inställningar från localStorage
   window.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("darkMode") === "true") {
       document.body.classList.add("dark");
