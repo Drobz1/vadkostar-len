@@ -225,7 +225,6 @@ nav {
     <div id="stepText" style="margin-bottom: 1rem; font-size: 1rem;"></div>
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
       <button id="nextStep" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Nästa</button>
-      <button id="endTutorial" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Jag fattar</button>
     </div>
   </div>
 </div>
@@ -244,7 +243,7 @@ nav {
   <button class="settings-btn" id="settingsToggle" title="Inställningar">⚙️</button>
 <div class="settings-panel" id="settingsPanel">
   <label>
-    🌙 Dark Mode:
+    🌙 Mörkt läge:
     <input type="checkbox" id="darkModeToggle" />
   </label>
   <label>
@@ -298,6 +297,10 @@ const tutorialSteps = [
     När du klickar på "Ranka billigast öl" i vår meny zoomar kartan in på baren med billigast öl.
   `,
   targetId: 'map'
+},
+{
+  text: `För att visa barer nära dig och få mer relevanta prisuppgifter kan du aktivera platsinformation i din webbläsare. Detta är helt frivilligt och du kan när som helst ändra detta.`,
+  targetId: 'locateIcon'
 }
 ];
 
@@ -324,8 +327,6 @@ const tutorialSteps = [
       showStep(currentStep);
     }
   };
-
-  document.getElementById('endTutorial').onclick = endTutorial;
 
   function showStep(index) {
     const step = tutorialSteps[index];
@@ -472,7 +473,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   let popupHTML = `<strong>${bar.name}</strong><br>`;
 
   if (isOpen) {
-    popupHTML += `Stänger - ${openTo}<br>`;
+    popupHTML += `Stäner - ${openTo}<br>`;
     popupHTML += `Ölpris just nu: ${priceToShow} kr<br>`;
 
     if (!isWeekend && bar.happyHour) {
@@ -671,7 +672,6 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     }
   });
 
-  // Språkbyte
   langSelect.addEventListener("change", () => {
     const val = langSelect.value;
     if (val === "en") {
