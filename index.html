@@ -475,7 +475,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   let popupHTML = `<strong>${bar.name}</strong><br>`;
 
   if (isOpen) {
-    popupHTML += `Stäner - ${openTo}<br>`;
+    popupHTML += `Stänger - ${openTo}<br>`;
     popupHTML += `Ölpris just nu: ${priceToShow} kr<br>`;
 
     if (!isWeekend && bar.happyHour) {
