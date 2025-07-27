@@ -7,6 +7,8 @@
   <meta name="description" content="Jämför ölpriser och Happy Hour-tider på barer runt Stockholm. Hitta billigaste ölen snabbt – uppdaterat av oss och våra följare. Instagram: vadkostarölen.se.">
   <title>Stockholm Ölkarta</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="71c8444a-27bf-4d75-be15-1137e8bf2b0d"></script> 
+  <script data-goatcounter="https://vadkostarolen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
   <script type="application/ld+json">
   {
   "@context": "https://schema.org",
@@ -212,8 +214,6 @@ nav {
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="71c8444a-27bf-4d75-be15-1137e8bf2b0d"></script> 
-<script data-goatcounter="https://vadkostarolen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <div id="tutorialOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); color: white; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
@@ -447,25 +447,6 @@ const tutorialSteps = [
 
   const dayKeys = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-// Funktion som justerar dagens index för timmar efter midnatt (räknas till föregående dag fram till 05:00)
-function getAdjustedDayIndexForTime(selectedTime = null) {
-  let now = new Date();
-
-  if (selectedTime) {
-    const [hour, minute] = selectedTime.split(":").map(Number);
-    const selectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
-    if (hour < 5) {
-      selectedDate.setDate(selectedDate.getDate() - 1);
-    }
-    return selectedDate.getDay();
-  } else {
-    if (now.getHours() < 5) {
-      now.setDate(now.getDate() - 1);
-    }
-    return now.getDay();
-  }
-}
-
 function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   const priceText = isOpen ? priceToShow : "❌";
   let color;
@@ -486,7 +467,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     iconAnchor: [15, 15]
   });
 
-  const todayIndex = getAdjustedDayIndexForTime();
+  const todayIndex = new Date().getDay();
   const openFrom = bar[`Open${dayKeys[todayIndex]}`];
   const openTo = bar[`Closed${dayKeys[todayIndex]}`];
   const openingTimeText = openFrom && openTo ? `${openFrom} - ${openTo}` : "Okänt";
@@ -525,7 +506,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   function updateBarsAtTime(selectedTime) {
     clearMarkers();
 
-    const todayIndex = getAdjustedDayIndexForTime(selectedTime);
+    const todayIndex = new Date().getDay();
     const isWeekend = todayIndex === 0 || todayIndex === 6;
 
     bars.forEach(bar => {
@@ -564,47 +545,43 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     menu.style.display = menu.style.display === "block" ? "none" : "block";
   });
 
-document.getElementById("cheapestBeer").addEventListener("click", () => {
-  if (bars.length === 0) {
-    alert("Inga barer är laddade ännu.");
-    return;
-  }
-
-  const currentTime = document.getElementById("timePicker").value;
-  const todayIndex = getAdjustedDayIndexForTime(currentTime);
-  const isWeekend = todayIndex === 0 || todayIndex === 6;
-
-  const openBars = bars.filter(bar => {
-    const openFrom = bar[`Open${dayKeys[todayIndex]}`];
-    const openTo = bar[`Closed${dayKeys[todayIndex]}`];
-    return isOpenAtTime(currentTime, openFrom, openTo);
-  });
-
-  if (openBars.length === 0) {
-    alert("Inga barer är öppna vid denna tid.");
-    return;
-  }
-
-  let cheapestBar = null;
-  let lowestPrice = Infinity;
-
-  openBars.forEach(bar => {
-    let price = bar.beerPrice;
-
-    if (!isWeekend && bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
-      price = bar.happyHour.price;
+  document.getElementById("cheapestBeer").addEventListener("click", () => {
+    if (bars.length === 0) {
+      alert("Inga barer är laddade ännu.");
+      return;
     }
 
-    if (price < lowestPrice) {
-      lowestPrice = price;
-      cheapestBar = bar;
+    const currentTime = document.getElementById("timePicker").value;
+    const todayIndex = new Date().getDay();
+
+    const openBars = bars.filter(bar => {
+      const openFrom = bar[`Open${dayKeys[todayIndex]}`];
+      const openTo = bar[`Closed${dayKeys[todayIndex]}`];
+      return isOpenAtTime(currentTime, openFrom, openTo);
+    });
+
+    if (openBars.length === 0) {
+      alert("Inga barer är öppna vid denna tid.");
+      return;
     }
+
+    let cheapestBar = openBars[0];
+    let lowestPrice = cheapestBar.beerPrice;
+
+    openBars.forEach(bar => {
+      let price = bar.beerPrice;
+      if (bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
+        price = bar.happyHour.price;
+      }
+      if (price < lowestPrice) {
+        lowestPrice = price;
+        cheapestBar = bar;
+      }
+    });
+
+    map.setView([cheapestBar.lat, cheapestBar.lng], 16);
+    alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
   });
-
-  map.setView([cheapestBar.lat, cheapestBar.lng], 16);
-  alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
-});
-
 
   const locateIcon = document.getElementById("locateIcon");
 
@@ -642,11 +619,11 @@ document.getElementById("cheapestBeer").addEventListener("click", () => {
             lat: parseFloat(row.Lat),
             lng: parseFloat(row.Lng),
             beerPrice: parseFloat(row.VanligtPris),
-happyHour: row.HappyPris ? {
-    from: row.Happyfrån,          // <- Rätt starttid för Happy Hour
-    to: row.Happyframtill,        // <- Sluttid för Happy Hour
-    price: parseFloat(row.HappyPris)
-} : null,
+            happyHour: row.HappyPris ? {
+            from: row[`Open${dayKeys[new Date().getDay()]}`],
+            to: row.Happyframtill,
+            price: parseFloat(row.HappyPris)
+            } : null,
             link: row.Links || null,
             OpenSun: row.OpenSun,
             ClosedSun: row.ClosedSun,
@@ -674,8 +651,6 @@ happyHour: row.HappyPris ? {
         });
     });
 </script>
-
-
 
 <script>
   const toggleBtn = document.getElementById("settingsToggle");
