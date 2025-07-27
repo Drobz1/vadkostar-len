@@ -8,18 +8,6 @@
   <title>Stockholm Ölkarta</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script type="application/ld+json">
-
-function getAdjustedDayIndex() {
-  const now = new Date();
-  const hour = now.getHours();
-  const day = now.getDay();
-  // Om det är efter midnatt men före kl 4, räkna som föregående dag
-  if (hour < 4) {
-    return (day + 6) % 7; // -1 modulo 7
-  }
-  return day;
-}
-
   {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -479,7 +467,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     iconAnchor: [15, 15]
   });
 
-  const todayIndex = getAdjustedDayIndex();
+  const todayIndex = new Date().getDay();
   const openFrom = bar[`Open${dayKeys[todayIndex]}`];
   const openTo = bar[`Closed${dayKeys[todayIndex]}`];
   const openingTimeText = openFrom && openTo ? `${openFrom} - ${openTo}` : "Okänt";
@@ -487,7 +475,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   let popupHTML = `<strong>${bar.name}</strong><br>`;
 
   if (isOpen) {
-    popupHTML += `Stäner - ${openTo}<br>`;
+    popupHTML += `Stänger - ${openTo}<br>`;
     popupHTML += `Ölpris just nu: ${priceToShow} kr<br>`;
 
     if (!isWeekend && bar.happyHour) {
@@ -518,7 +506,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   function updateBarsAtTime(selectedTime) {
     clearMarkers();
 
-    const todayIndex = getAdjustedDayIndex();
+    const todayIndex = new Date().getDay();
     const isWeekend = todayIndex === 0 || todayIndex === 6;
 
     bars.forEach(bar => {
@@ -564,7 +552,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     }
 
     const currentTime = document.getElementById("timePicker").value;
-    const todayIndex = getAdjustedDayIndex();
+    const todayIndex = new Date().getDay();
 
     const openBars = bars.filter(bar => {
       const openFrom = bar[`Open${dayKeys[todayIndex]}`];
@@ -632,7 +620,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
             lng: parseFloat(row.Lng),
             beerPrice: parseFloat(row.VanligtPris),
             happyHour: row.HappyPris ? {
-            from: row[`Open${dayKeys[getAdjustedDayIndex()]}`],
+            from: row[`Open${dayKeys[new Date().getDay()]}`],
             to: row.Happyframtill,
             price: parseFloat(row.HappyPris)
             } : null,
