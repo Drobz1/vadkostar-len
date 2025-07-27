@@ -449,22 +449,20 @@ const tutorialSteps = [
 
 // Funktion som justerar dagens index för timmar efter midnatt (räknas till föregående dag fram till 05:00)
 function getAdjustedDayIndexForTime(selectedTime = null) {
+  let now = new Date();
+
   if (selectedTime) {
-    // Om vi kollar en manuellt vald tid
-    const [hour] = selectedTime.split(":").map(Number);
-    let day = new Date().getDay();
+    const [hour, minute] = selectedTime.split(":").map(Number);
+    const selectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
     if (hour < 5) {
-      day = (day - 1 + 7) % 7;
+      selectedDate.setDate(selectedDate.getDate() - 1);
     }
-    return day;
+    return selectedDate.getDay();
   } else {
-    // Om vi kollar nuvarande tid
-    const now = new Date();
-    let day = now.getDay();
     if (now.getHours() < 5) {
-      day = (day - 1 + 7) % 7;
+      now.setDate(now.getDate() - 1);
     }
-    return day;
+    return now.getDay();
   }
 }
 
@@ -566,43 +564,47 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     menu.style.display = menu.style.display === "block" ? "none" : "block";
   });
 
-  document.getElementById("cheapestBeer").addEventListener("click", () => {
-    if (bars.length === 0) {
-      alert("Inga barer är laddade ännu.");
-      return;
-    }
+document.getElementById("cheapestBeer").addEventListener("click", () => {
+  if (bars.length === 0) {
+    alert("Inga barer är laddade ännu.");
+    return;
+  }
 
-    const currentTime = document.getElementById("timePicker").value;
-    const todayIndex = getAdjustedDayIndexForTime(currentTime);
+  const currentTime = document.getElementById("timePicker").value;
+  const todayIndex = getAdjustedDayIndexForTime(currentTime);
+  const isWeekend = todayIndex === 0 || todayIndex === 6;
 
-    const openBars = bars.filter(bar => {
-      const openFrom = bar[`Open${dayKeys[todayIndex]}`];
-      const openTo = bar[`Closed${dayKeys[todayIndex]}`];
-      return isOpenAtTime(currentTime, openFrom, openTo);
-    });
-
-    if (openBars.length === 0) {
-      alert("Inga barer är öppna vid denna tid.");
-      return;
-    }
-
-    let cheapestBar = openBars[0];
-    let lowestPrice = cheapestBar.beerPrice;
-
-    openBars.forEach(bar => {
-      let price = bar.beerPrice;
-      if (bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
-        price = bar.happyHour.price;
-      }
-      if (price < lowestPrice) {
-        lowestPrice = price;
-        cheapestBar = bar;
-      }
-    });
-
-    map.setView([cheapestBar.lat, cheapestBar.lng], 16);
-    alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
+  const openBars = bars.filter(bar => {
+    const openFrom = bar[`Open${dayKeys[todayIndex]}`];
+    const openTo = bar[`Closed${dayKeys[todayIndex]}`];
+    return isOpenAtTime(currentTime, openFrom, openTo);
   });
+
+  if (openBars.length === 0) {
+    alert("Inga barer är öppna vid denna tid.");
+    return;
+  }
+
+  let cheapestBar = null;
+  let lowestPrice = Infinity;
+
+  openBars.forEach(bar => {
+    let price = bar.beerPrice;
+
+    if (!isWeekend && bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
+      price = bar.happyHour.price;
+    }
+
+    if (price < lowestPrice) {
+      lowestPrice = price;
+      cheapestBar = bar;
+    }
+  });
+
+  map.setView([cheapestBar.lat, cheapestBar.lng], 16);
+  alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
+});
+
 
   const locateIcon = document.getElementById("locateIcon");
 
@@ -640,11 +642,11 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
             lat: parseFloat(row.Lat),
             lng: parseFloat(row.Lng),
             beerPrice: parseFloat(row.VanligtPris),
-            happyHour: row.HappyPris ? {
-            from: row[`Open${dayKeys[getAdjustedDayIndexForTime()]}`],
-            to: row.Happyframtill,
-            price: parseFloat(row.HappyPris)
-            } : null,
+happyHour: row.HappyPris ? {
+    from: row.Happyfrån,          // <- Rätt starttid för Happy Hour
+    to: row.Happyframtill,        // <- Sluttid för Happy Hour
+    price: parseFloat(row.HappyPris)
+} : null,
             link: row.Links || null,
             OpenSun: row.OpenSun,
             ClosedSun: row.ClosedSun,
