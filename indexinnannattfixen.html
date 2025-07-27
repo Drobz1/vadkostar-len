@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="vadkostarolenlogga48x.png">
+  <meta name="description" content="Jämför ölpriser och Happy Hour-tider på barer runt Stockholm. Hitta billigaste ölen snabbt – uppdaterat av oss och våra följare. Instagram: vadkostarölen.se.">
+  <title>Stockholm Ölkarta</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Vad Kostar Ölen",
+  "url": "https://vadkostarölen.se",
+  "logo": "https://vadkostarölen.se/vadkostarolenlogga112x112.png"
+  }
+</script>
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+    nav {
+      background-color: #6d6a6a;
+      color: white;
+      padding: 1rem;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    nav .title {
+      font-size: 1.2rem;
+      flex-grow: 1;
+    }
+    nav input[type="time"] {
+      background: #444;
+      border: none;
+      color: white;
+      padding: 0.5rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .hamburger {
+      z-index: 1002;
+      position: relative;
+      cursor: pointer;
+    }
+    .menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      background-color: #444;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      z-index: 1001;
+    }
+    .menu a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: white;
+      text-decoration: none;
+      border-bottom: 1px solid #666;
+    }
+    .menu a:last-child {
+      border-bottom: none;
+    }
+    .menu a:hover {
+      background-color: #555;
+    }
+    #map {
+      height: calc(100% - 60px);
+      width: 100%;
+    }
+    .leaflet-popup-content {
+      font-size: 14px;
+    }
+    .price-marker .price-circle {
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 30px;
+      width: 30px;
+      height: 30px;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+      text-shadow:
+        1px 1px 0 #000,
+       -1px 1px 0 #000,
+        1px -1px 0 #000,
+       -1px -1px 0 #000,
+        0px 1px 0 #000,
+        0px -1px 0 #000,
+        1px 0px 0 #000,
+       -1px 0px 0 #000;
+    }
+
+    #locateIcon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ffffff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      transition: background-color 0.3s ease;
+    }
+
+    #locateIcon:hover,
+    #locateIcon:focus {
+      background: #ffffff;
+      outline: none;
+    }
+
+    .highlightBox {
+      position: absolute;
+      border: 3px solid yellow;
+      border-radius: 8px;
+      pointer-events: none;
+      box-shadow: 0 0 15px yellow;
+      z-index: 2001;
+      transition: all 0.2s ease;
+    }
+
+    @media (max-width: 600px) {
+      #tutorialOverlay h2 {
+        font-size: 1.2rem;
+      }
+
+      #tutorialOverlay p,
+      #stepText {
+        font-size: 1.05rem;
+        line-height: 1.4;
+        padding: 0.75rem;
+        max-width: 90%;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 600px) {
+      #stepText {
+        font-size: 0.9rem;
+        }
+      }
+
+      .highlightBox {
+        border-width: 2px;
+      }
+    }
+
+    /* DK on - off och språkval css */
+    :root {
+  --bg-color: white;
+  --text-color: black;
+  --nav-color: #6d6a6a;
+}
+body.dark {
+  --bg-color: #121212;
+  --text-color: #f0f0f0;
+  --nav-color: #222;
+}
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+nav {
+  background-color: var(--nav-color);
+}
+.settings-btn {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+}
+.settings-panel {
+  position: fixed;
+  top: 60px;
+  right: 10px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid #ffffff;
+  padding: 1rem;
+  z-index: 1003;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  display: none;
+}
+.settings-panel label {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+.settings-panel select {
+  padding: 0.3rem;
+}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="71c8444a-27bf-4d75-be15-1137e8bf2b0d"></script> 
+<script data-goatcounter="https://vadkostarolen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<div id="tutorialOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); color: white; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
+  <div id="tutorialStep" style="max-width: 90%; width: 500px;">
+    <h2 style="font-size: 1.5rem;">Välkommen till vadkostarölen.se!</h2>
+    <p style="font-size: 1rem;">Vi visar dig snabbt hur du använder hemsidan.</p>
+    <button id="startTutorial" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Starta rundvandring</button>
+  </div>
+
+  <div id="tutorialPointer" style="display:none; max-width: 90%; width: 500px;">
+    <div id="stepText" style="margin-bottom: 1rem; font-size: 1rem;"></div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+      <button id="nextStep" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Nästa</button>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <div class="hamburger" id="hamburger">&#9776;</div>
+  <div class="title">vadkostarölen.se</div>
+  <input type="time" id="timePicker" />
+  <div class="menu" id="menu">
+    <a href="#" id="cheapestBeer">Ranka billigast öl</a>
+    <a href="aboutus.html">Om oss</a>
+    <a href="policy.html">Policy</a>
+    <a href="updates.html">Uppdateringar</a>
+  </div>
+
+  <button class="settings-btn" id="settingsToggle" title="Inställningar">⚙️</button>
+<div class="settings-panel" id="settingsPanel">
+  <label>
+    🌙 Mörkt läge:
+    <input type="checkbox" id="darkModeToggle" />
+  </label>
+  <label>
+    🌐 Språk:
+    <select id="languageSelect">
+      <option value="sv">Svenska</option>
+      <option value="en">English</option>
+    </select>
+  </label>
+</div>
+</nav>
+
+<div id="map"></div>
+
+<div id="locateIcon" title="Visa min position" aria-label="Visa min position" role="button" tabindex="0" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10000;
+">
+  <img src="visamigikon-removebg-preview.png" alt="Visa min position" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;" />
+</div>
+
+
+<script>
+const tutorialSteps = [
+  {
+    text: 'Här kan du ändra inställningar som mörkt läge och språk.',
+    targetId: 'settingsToggle'
+  },
+  {
+    text: 'Här ändrar du klockslaget för att se priser vid olika tider idag. Happy hour-tider och öppettider gäller för dagens datum.',
+    targetId: 'timePicker'
+  },
+  {
+    text: 'Här öppnar du menyn med fler alternativ.',
+    targetId: 'hamburger'
+  },
+{
+  text: `
+    Färgerna på kartan visar prisnivån på öl just nu:<br>
+    <strong style="color: limegreen;">Limegrön</strong> = Pris upp till och med 40 kr<br>
+    <strong style="color: orange;">Orange</strong> = Pris över 40 kr och upp till 65 kr<br>
+    <strong style="color: red;">Röd</strong> = Pris över 65 kr<br><br>
+    När du klickar på "Ranka billigast öl" i vår meny zoomar kartan in på baren med billigast öl.
+  `,
+  targetId: 'map'
+},
+{
+  text: `För att visa barer nära dig och få mer relevanta prisuppgifter kan du aktivera platsinformation i din webbläsare. Detta är helt frivilligt och du kan när som helst ändra detta.`,
+  targetId: 'locateIcon'
+}
+];
+
+
+  let currentStep = 0;
+  let highlightBox;
+
+  const overlay = document.getElementById('tutorialOverlay');
+  const stepContainer = document.getElementById('tutorialStep');
+  const pointer = document.getElementById('tutorialPointer');
+  const stepText = document.getElementById('stepText');
+
+  document.getElementById('startTutorial').onclick = () => {
+    stepContainer.style.display = 'none';
+    pointer.style.display = 'block';
+    showStep(currentStep);
+  };
+
+  document.getElementById('nextStep').onclick = () => {
+    currentStep++;
+    if (currentStep >= tutorialSteps.length) {
+      endTutorial();
+    } else {
+      showStep(currentStep);
+    }
+  };
+
+  function showStep(index) {
+    const step = tutorialSteps[index];
+    const target = document.getElementById(step.targetId);
+    if (!target) return;
+
+    const rect = target.getBoundingClientRect();
+
+    if (!highlightBox) {
+      highlightBox = document.createElement('div');
+      highlightBox.classList.add('highlightBox');
+      document.body.appendChild(highlightBox);
+    }
+
+    highlightBox.style.top = rect.top + window.scrollY - 8 + 'px';
+    highlightBox.style.left = rect.left + window.scrollX - 8 + 'px';
+    highlightBox.style.width = rect.width + 16 + 'px';
+    highlightBox.style.height = rect.height + 16 + 'px';
+
+    stepText.innerHTML = `<p>${step.text}</p>`;
+  }
+
+  function endTutorial() {
+    overlay.style.display = 'none';
+    if (highlightBox) highlightBox.remove();
+    localStorage.setItem('hasSeenTutorial', 'true');
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const hasSeen = localStorage.getItem('hasSeenTutorial');
+    if (!hasSeen) {
+      overlay.style.display = 'flex';
+    }
+  });
+
+  const map = L.map('map').setView([59.3293, 18.0686], 13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+
+  let userMarker = null;
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+
+        userMarker = L.circleMarker([userLat, userLng], {
+          radius: 8,
+          color: '#0096ff',
+          fillColor: '#0096ff',
+          fillOpacity: 0.8
+        }).addTo(map).bindPopup("Du är här!");
+
+        map.setView([userLat, userLng], 14);
+      },
+      error => {
+        console.warn("Kunde inte hämta platsen: ", error);
+      }
+    );
+  } else {
+    alert("Din webbläsare stöder inte geolokalisering.");
+  }
+
+  let currentMarkers = [];
+  let bars = [];
+
+  function clearMarkers() {
+    currentMarkers.forEach(marker => map.removeLayer(marker));
+    currentMarkers = [];
+  }
+
+  function getPriceColor(price) {
+    if (price <= 40) return "limegreen";
+    if (price <= 65) return "orange";
+    return "red";
+  }
+
+  function isOpenAtTime(selectedTime, openFrom, openTo) {
+    if (!openFrom || !openTo) return true;
+
+    const [sh, sm] = selectedTime.split(":").map(Number);
+    const [ofh, ofm] = openFrom.split(":").map(Number);
+    const [oth, otm] = openTo.split(":").map(Number);
+
+    const current = sh * 60 + sm;
+    const from = ofh * 60 + ofm;
+    const to = oth * 60 + otm;
+
+    if (to < from) {
+      return current >= from || current < to;
+    } else {
+      return current >= from && current < to;
+    }
+  }
+
+  function isTimeWithinRange(time, from, to) {
+    if (!from || !to) return true;
+    const [th, tm] = time.split(":").map(Number);
+    const [fh, fm] = from.split(":").map(Number);
+    const [th2, tm2] = to.split(":").map(Number);
+
+    const timeMinutes = th * 60 + tm;
+    const fromMinutes = fh * 60 + fm;
+    const toMinutes = th2 * 60 + tm2;
+
+    if (toMinutes < fromMinutes) {
+      return timeMinutes >= fromMinutes || timeMinutes < toMinutes;
+    } else {
+      return timeMinutes >= fromMinutes && timeMinutes < toMinutes;
+    }
+  }
+
+  const dayKeys = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
+  const priceText = isOpen ? priceToShow : "❌";
+  let color;
+  let zIndex;
+
+  if (isOpen) {
+    color = getPriceColor(priceToShow);
+    zIndex = color === "limegreen" ? 3000 : color === "orange" ? 2000 : 1000;
+  } else {
+    color = "gray";
+    zIndex = 0;
+  }
+
+  const priceIcon = L.divIcon({
+    className: 'price-marker',
+    html: `<div class="price-circle" style="background-color: ${color}">${priceText}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+
+  const todayIndex = new Date().getDay();
+  const openFrom = bar[`Open${dayKeys[todayIndex]}`];
+  const openTo = bar[`Closed${dayKeys[todayIndex]}`];
+  const openingTimeText = openFrom && openTo ? `${openFrom} - ${openTo}` : "Okänt";
+
+  let popupHTML = `<strong>${bar.name}</strong><br>`;
+
+  if (isOpen) {
+    popupHTML += `Stänger - ${openTo}<br>`;
+    popupHTML += `Ölpris just nu: ${priceToShow} kr<br>`;
+
+    if (!isWeekend && bar.happyHour) {
+      popupHTML += `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}<br>`;
+    } else if (!bar.happyHour) {
+      popupHTML += `Ingen Happy Hour<br>`;
+    } else {
+      popupHTML += `Happy Hour: Gäller endast vardagar!<br>`;
+    }
+  } else {
+    popupHTML += `Stängt - öppnar ${openFrom}<br>`;
+    popupHTML += `Ingen Happy Hour<br>`;
+  }
+
+  if (bar.link) {
+    popupHTML += `<a href="${bar.link}" target="_blank" rel="noopener noreferrer">Visa på Google</a>`;
+  }
+
+  const marker = L.marker([bar.lat, bar.lng], {
+    icon: priceIcon,
+    zIndexOffset: zIndex
+  }).addTo(map).bindPopup(popupHTML);
+
+  currentMarkers.push(marker);
+}
+
+
+  function updateBarsAtTime(selectedTime) {
+    clearMarkers();
+
+    const todayIndex = new Date().getDay();
+    const isWeekend = todayIndex === 0 || todayIndex === 6;
+
+    bars.forEach(bar => {
+      let currentPrice = bar.beerPrice;
+
+      if (!isWeekend && bar.happyHour && isTimeWithinRange(selectedTime, bar.happyHour.from, bar.happyHour.to)) {
+        currentPrice = bar.happyHour.price;
+      }
+
+      const openFrom = bar[`Open${dayKeys[todayIndex]}`];
+      const openTo = bar[`Closed${dayKeys[todayIndex]}`];
+      const isOpen = isOpenAtTime(selectedTime, openFrom, openTo);
+
+      createMarker(bar, currentPrice, selectedTime, isOpen, isWeekend);
+    });
+  }
+
+  function setCurrentTimeAsDefault() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const currentTime = `${hours}:${minutes}`;
+    document.getElementById("timePicker").value = currentTime;
+  }
+
+  setCurrentTimeAsDefault();
+  const initialTime = document.getElementById("timePicker").value;
+  updateBarsAtTime(initialTime);
+
+  document.getElementById("timePicker").addEventListener("change", (e) => {
+    updateBarsAtTime(e.target.value);
+  });
+
+  document.getElementById("hamburger").addEventListener("click", () => {
+    const menu = document.getElementById("menu");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  });
+
+  document.getElementById("cheapestBeer").addEventListener("click", () => {
+    if (bars.length === 0) {
+      alert("Inga barer är laddade ännu.");
+      return;
+    }
+
+    const currentTime = document.getElementById("timePicker").value;
+    const todayIndex = new Date().getDay();
+
+    const openBars = bars.filter(bar => {
+      const openFrom = bar[`Open${dayKeys[todayIndex]}`];
+      const openTo = bar[`Closed${dayKeys[todayIndex]}`];
+      return isOpenAtTime(currentTime, openFrom, openTo);
+    });
+
+    if (openBars.length === 0) {
+      alert("Inga barer är öppna vid denna tid.");
+      return;
+    }
+
+    let cheapestBar = openBars[0];
+    let lowestPrice = cheapestBar.beerPrice;
+
+    openBars.forEach(bar => {
+      let price = bar.beerPrice;
+      if (bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
+        price = bar.happyHour.price;
+      }
+      if (price < lowestPrice) {
+        lowestPrice = price;
+        cheapestBar = bar;
+      }
+    });
+
+    map.setView([cheapestBar.lat, cheapestBar.lng], 16);
+    alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
+  });
+
+  const locateIcon = document.getElementById("locateIcon");
+
+  locateIcon.addEventListener("click", () => {
+    if (userMarker) {
+      map.setView(userMarker.getLatLng(), 14, { animate: true });
+      userMarker.openPopup();
+    } else {
+      alert("Vi kan inte hitta din position just nu.");
+    }
+  });
+
+  locateIcon.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      locateIcon.click();
+    }
+  });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpXec_0Bc8Sj09G19JZekyvOX3nmHYTvkhtrNVnHB7wndpzNX29-Of_gpznHK_666ii1Pub4tLKEH8/pub?output=csv';
+
+      fetch(csvUrl)
+        .then(response => {
+          if (!response.ok) throw new Error('Nätverksfel vid hämtning av CSV');
+          return response.text();
+        })
+        .then(csvText => {
+          const results = Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true,
+          });
+
+          bars = results.data.map(row => ({
+            name: row.Bar,
+            lat: parseFloat(row.Lat),
+            lng: parseFloat(row.Lng),
+            beerPrice: parseFloat(row.VanligtPris),
+            happyHour: row.HappyPris ? {
+            from: row[`Open${dayKeys[new Date().getDay()]}`],
+            to: row.Happyframtill,
+            price: parseFloat(row.HappyPris)
+            } : null,
+            link: row.Links || null,
+            OpenSun: row.OpenSun,
+            ClosedSun: row.ClosedSun,
+            OpenMon: row.OpenMon,
+            ClosedMon: row.ClosedMon,
+            OpenTue: row.OpenTue,
+            ClosedTue: row.ClosedTue,
+            OpenWed: row.OpenWed,
+            ClosedWed: row.ClosedWed,
+            OpenThu: row.OpenThu,
+            ClosedThu: row.ClosedThu,
+            OpenFri: row.OpenFri,
+            ClosedFri: row.ClosedFri,
+            OpenSat: row.OpenSat,
+            ClosedSat: row.ClosedSat
+          }));
+
+          console.log("Bars-array efter PapaParse:", bars);
+
+          const initialTime = document.getElementById("timePicker").value;
+          updateBarsAtTime(initialTime);
+        })
+        .catch(err => {
+          console.error("Fel vid hämtning eller parsing av CSV:", err);
+        });
+    });
+</script>
+
+
+
+<script>
+  const toggleBtn = document.getElementById("settingsToggle");
+  const panel = document.getElementById("settingsPanel");
+  const darkToggle = document.getElementById("darkModeToggle");
+  const langSelect = document.getElementById("languageSelect");
+
+  // Öppna/stäng kugghjulspanelen
+  toggleBtn.addEventListener("click", () => {
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+  });
+
+  // Dark mode logik
+  darkToggle.addEventListener("change", () => {
+    if (darkToggle.checked) {
+      document.body.classList.add("dark");
+      localStorage.setItem("darkMode", "true");
+    } else {
+      document.body.classList.remove("dark");
+      localStorage.setItem("darkMode", "false");
+    }
+  });
+
+  langSelect.addEventListener("change", () => {
+    const val = langSelect.value;
+    if (val === "en") {
+      window.location.href = "index-en.html";
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark");
+      darkToggle.checked = true;
+    }
+
+    const currentPath = window.location.pathname;
+    if (currentPath.includes("index-en")) {
+      langSelect.value = "en";
+    } else {
+      langSelect.value = "sv";
+    }
+  });
+</script>
+</body>
+</html>
