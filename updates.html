@@ -190,6 +190,14 @@
   }
 }
 
+.warning {
+  color: orange;
+  font-weight: bold;
+  margin-top: 3px;   /* Litet mellanrum uppåt */
+  margin-bottom: 0;  /* Tar bort extra spacing nedåt */
+}
+
+
   </style>
 </head>
 <body>
@@ -198,7 +206,7 @@
     <div class="hamburger" id="hamburger">&#9776;</div>
     <div class="title">vadkostarölen.se</div>
     <div class="menu" id="menu">
-      <a href="index.html" id="cheapestBeer">ölkarta</a>
+      <a href="index.html" id="cheapestBeer">Ölkarta</a>
       <a href="aboutus.html">Om oss</a>
       <a href="policy.html">Policy</a>
       <a href="updates.html">Uppdateringar</a>
@@ -223,6 +231,17 @@
   <h1>Uppdateringar på hemsidan</h1>
 
   <main>
+
+    <div class="update-section">
+  <div class="date">Publicerad: 28 juli 2025</div>
+  <div class="change added">Flera buggar har lösts.</div>
+  <div class="change added">Ölkartan har optimerats för snabbare användning.</div>
+  <div class="change added">Buggen i tutorialen där användare inte kunde klicka på "Nästa" för att slutföra det sista steget är nu åtgärdad.</div>
+<div class="change added">Vi har fortsatt utvecklingen av den engelska versionen av webbplatsen. Du kan redan nu byta till den via inställningsmenyn.
+<div class="warning">OBS: Notera att den engelska versionen av hemsidan ännu inte är helt färdig och saknar vissa funktioner som finns i den svenska versionen.</div>
+</div>
+</div>
+</div>
 
   <div class="update-section">
     <div class="date">Publicerad: 24 juli 2025</div>
@@ -271,7 +290,7 @@
       <div class="change added">+ Små buggfixar och kodstädning för bättre prestanda.</div>
     </div>
   </main>
-
+  
   <script>
     document.getElementById("hamburger").addEventListener("click", () => {
       const menu = document.getElementById("menu");
@@ -312,6 +331,5 @@
       langSelect.value = currentPath.includes("index-en") ? "en" : "sv";
     });
   </script>
-
 </body>
 </html>
