@@ -295,7 +295,8 @@ const tutorialSteps = [
     Färgerna på kartan visar prisnivån på öl just nu:<br>
     <strong style="color: limegreen;">Limegrön</strong> = Pris upp till och med 40 kr<br>
     <strong style="color: orange;">Orange</strong> = Pris över 40 kr och upp till 65 kr<br>
-    <strong style="color: red;">Röd</strong> = Pris över 65 kr<br><br>
+    <strong style="color: red;">Röd</strong> = Pris över 65 kr<br>
+    <strong>❌</strong> = betyder att baren är stängd<br><br>
     När du klickar på "Ranka billigast öl" i vår meny zoomar kartan in på baren med billigast öl.
   `,
   targetId: 'map'
@@ -364,12 +365,22 @@ const tutorialSteps = [
     }
   });
 
+  //ändring 1
+  const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap',
+  subdomains: 'abcd',
+  maxZoom: 19
+});
+
+const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap',
+  subdomains: 'abcd',
+  maxZoom: 19
+});
+
+  //ändraing 2
   const map = L.map('map').setView([59.3293, 18.0686], 13);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(map);
+  lightTiles.addTo(map);
 
   let userMarker = null;
 
@@ -658,21 +669,25 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   const darkToggle = document.getElementById("darkModeToggle");
   const langSelect = document.getElementById("languageSelect");
 
-  // Öppna/stäng kugghjulspanelen
   toggleBtn.addEventListener("click", () => {
     panel.style.display = panel.style.display === "block" ? "none" : "block";
   });
 
-  // Dark mode logik
-  darkToggle.addEventListener("change", () => {
-    if (darkToggle.checked) {
-      document.body.classList.add("dark");
-      localStorage.setItem("darkMode", "true");
-    } else {
-      document.body.classList.remove("dark");
-      localStorage.setItem("darkMode", "false");
-    }
-  });
+  // Dark mode logik + light map ändring 3
+darkToggle.addEventListener("change", () => {
+  if (darkToggle.checked) {
+    document.body.classList.add("dark");
+    map.removeLayer(lightTiles);
+    map.addLayer(darkTiles);
+    localStorage.setItem("darkMode", "true");
+  } else {
+    document.body.classList.remove("dark");
+    map.removeLayer(darkTiles);
+    map.addLayer(lightTiles);
+    localStorage.setItem("darkMode", "false");
+  }
+});
+
 
   langSelect.addEventListener("change", () => {
     const val = langSelect.value;
@@ -683,12 +698,15 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     }
   });
 
-  window.addEventListener("DOMContentLoaded", () => {
-    if (localStorage.getItem("darkMode") === "true") {
-      document.body.classList.add("dark");
-      darkToggle.checked = true;
-    }
-
+  //ändring 4
+window.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+    darkToggle.checked = true;
+    darkTiles.addTo(map);
+  } else {
+    darkTiles.addTo(map);
+  }
     const currentPath = window.location.pathname;
     if (currentPath.includes("index-en")) {
       langSelect.value = "en";
@@ -697,5 +715,117 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     }
   });
 </script>
+<style>
+/* Loader fullskärm */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  transition: opacity 0.5s ease;
+  font-family: sans-serif;
+  color: #333;
+}
+
+/* För Dark Mode */
+body.dark #loader {
+  background: #121212;
+  color: #fff;
+}
+
+#loader img {
+  width: 120px;
+  height: 120px;
+  animation: pulse 1.5s ease-in-out infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes pulse {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.15); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+#loader p {
+  font-size: 1.2rem;
+  margin: 0;
+}
+</style>
+
+<script>
+let loaderTimeout;
+
+document.addEventListener("DOMContentLoaded", () => {
+//Loadern visas först om sidan inte är klar efter 800ms
+  loaderTimeout = setTimeout(showLoader, 800);
+});
+
+window.addEventListener("load", () => {
+  clearTimeout(loaderTimeout);
+  hideLoader();
+});
+
+function showLoader() {
+  if (document.getElementById('loader')) return;
+
+  const loaderDiv = document.createElement('div');
+  loaderDiv.id = 'loader';
+  loaderDiv.innerHTML = `
+    <img src="vadkostarolenlogga112x112-removebg-preview.png" alt="Laddar...">
+    <p id="loaderText">Laddar.</p>
+  `;
+  document.body.prepend(loaderDiv);
+  animateLoaderText();
+}
+
+function animateLoaderText() {
+  const loaderText = document.getElementById('loaderText');
+  if (!loaderText) return;
+
+  const fastMessages = ["Laddar.", "Laddar..", "Laddar..."];
+  const slowMessages = ["Laddar in kartan...", "Laddar in alla barer...", "Laddar klart!"];
+
+  let index = 0;
+
+  const fastInterval = setInterval(() => {
+    if (!loaderText) { clearInterval(fastInterval); return; }
+    loaderText.textContent = fastMessages[index];
+    index++;
+    if (index >= fastMessages.length) {
+      clearInterval(fastInterval);
+      startSlowPhase(loaderText, slowMessages);
+    }
+  }, 500);
+}
+
+function startSlowPhase(loaderText, messages) {
+  let i = 0;
+  const slowInterval = setInterval(() => {
+    if (!loaderText) { clearInterval(slowInterval); return; }
+    loaderText.textContent = messages[i];
+    i++;
+    if (i >= messages.length) {
+      clearInterval(slowInterval);
+      hideLoader();
+    }
+  }, 1250); //slowmessages ms
+}
+
+function hideLoader() {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    loader.style.opacity = '0';
+    setTimeout(() => loader.remove(), 500);
+  }
+}
+</script>
+
 </body>
 </html>
