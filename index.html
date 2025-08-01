@@ -458,6 +458,19 @@ const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/
 
   const dayKeys = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
+function getLogicalDayIndex(currentTime = null) {
+  const now = currentTime ? new Date(currentTime) : new Date();
+  const hours = now.getHours();
+  let day = now.getDay(); // 0 = söndag, 1 = måndag, ..., 6 = lördag
+
+  if (hours < 5) {
+    // Om klockan är mellan 00:00 och 04:59 → räkna det som föregående dag
+    day = (day - 1 + 7) % 7;
+  }
+
+  return day;
+}
+
 function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   const priceText = isOpen ? priceToShow : "❌";
   let color;
@@ -478,7 +491,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     iconAnchor: [15, 15]
   });
 
-  const todayIndex = new Date().getDay();
+  const todayIndex = getLogicalDayIndex();
   const openFrom = bar[`Open${dayKeys[todayIndex]}`];
   const openTo = bar[`Closed${dayKeys[todayIndex]}`];
   const openingTimeText = openFrom && openTo ? `${openFrom} - ${openTo}` : "Okänt";
@@ -517,7 +530,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   function updateBarsAtTime(selectedTime) {
     clearMarkers();
 
-    const todayIndex = new Date().getDay();
+    const todayIndex = getLogicalDayIndex();
     const isWeekend = todayIndex === 0 || todayIndex === 6;
 
     bars.forEach(bar => {
@@ -563,7 +576,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     }
 
     const currentTime = document.getElementById("timePicker").value;
-    const todayIndex = new Date().getDay();
+    const todayIndex = getLogicalDayIndex();
 
     const openBars = bars.filter(bar => {
       const openFrom = bar[`Open${dayKeys[todayIndex]}`];
@@ -631,7 +644,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
             lng: parseFloat(row.Lng),
             beerPrice: parseFloat(row.VanligtPris),
             happyHour: row.HappyPris ? {
-            from: row[`Open${dayKeys[new Date().getDay()]}`],
+            from: row[`Open${dayKeys[getLogicalDayIndex()]}`],
             to: row.Happyframtill,
             price: parseFloat(row.HappyPris)
             } : null,
@@ -804,6 +817,9 @@ function animateLoaderText() {
     }
   }, 750);
 }
+
+const weekdayNames = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
+console.log("Systemet tolkar dagen som: " + weekdayNames[getLogicalDayIndex()]);
 
 function startSlowPhase(loaderText, messages) {
   let i = 0;
