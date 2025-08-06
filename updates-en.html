@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Updates – Vadkostarölen.se</title>
+  <meta name="description" content="See the latest updates for the website Vadkostarölen.se.">
+  <link rel="icon" href="vadkostarolenlogga48x.png" />
+  <style>
+    :root {
+      --bg-color: white;
+      --text-color: black;
+      --nav-color: #6d6a6a;
+    }
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --nav-color: #222;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+    }
+
+    nav {
+      background-color: var(--nav-color);
+      color: white;
+      padding: 1rem;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    nav .title {
+      font-size: 1.2rem;
+      flex-grow: 1;
+    }
+
+    .hamburger {
+      z-index: 1002;
+      cursor: pointer;
+      font-size: 1.5rem;
+    }
+
+    .menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 10px;
+      background-color: #444;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      z-index: 1001;
+      min-width: 160px;
+    }
+
+    .menu a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: white;
+      text-decoration: none;
+      border-bottom: 1px solid #666;
+    }
+
+    .menu a:last-child {
+      border-bottom: none;
+    }
+
+    .menu a:hover {
+      background-color: #555;
+    }
+
+    .settings-btn {
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .settings-panel {
+      position: fixed;
+      top: 60px;
+      right: 10px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      border: 1px solid #ffffff;
+      padding: 1rem;
+      z-index: 1003;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      display: none;
+    }
+
+    .settings-panel label {
+      display: flex;
+      align-items: center;
+      margin: 0.5rem 0;
+    }
+
+    .settings-panel select {
+      padding: 0.3rem;
+    }
+
+    h1, h2 {
+      color: var(--text-color);
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    main {
+      padding: 1rem;
+    }
+
+    .update-section {
+      margin: 1.5rem auto;
+      padding: 1rem;
+      max-width: 800px;
+      background-color: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 10px;
+    }
+
+    .date {
+      color: #aaa;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .change {
+      white-space: pre-wrap;
+      font-family: monospace;
+      margin-bottom: 0.3rem;
+    }
+
+    .added { color: #00ff7f; }
+    .upcoming { color: #00bfff; }
+    .removed { color: #ff5555; }
+
+@media (max-width: 600px) {
+  nav {
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .title {
+    flex-grow: 1;
+    margin: 0;
+  }
+
+  .menu {
+    display: none;
+    position: absolute;
+    top: 3.5rem;
+    left: 1rem;
+    width: 85vw;
+    background-color: #444;
+    flex-direction: column;
+    border-radius: 6px;
+  }
+
+  .menu.show {
+    display: flex;
+  }
+
+  .menu a {
+    padding: 1rem;
+    border-bottom: 1px solid #555;
+  }
+
+  .settings-panel {
+    width: 90vw;
+    top: 4rem;
+    right: 1rem;
+  }
+
+  .update-section {
+    margin: 1rem 0.5rem;
+    padding: 1rem;
+  }
+}
+
+.warning {
+  color: orange;
+  font-weight: bold;
+  margin-top: 3px;
+  margin-bottom: 0;
+}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="hamburger" id="hamburger">&#9776;</div>
+    <div class="title">vadkostarölen.se</div>
+    <div class="menu" id="menu">
+      <a href="index-en.html" id="cheapestBeer">Beer Map</a>
+      <a href="aboutus-en.html">About Us</a>
+      <a href="policy-en.html">Policy</a>
+      <a href="updates-en.html">Updates</a>
+    </div>
+
+    <button class="settings-btn" id="settingsToggle" title="Settings">⚙️</button>
+    <div class="settings-panel" id="settingsPanel">
+      <label>
+        🌙 Dark Mode:
+        <input type="checkbox" id="darkModeToggle" />
+      </label>
+      <label>
+        🌐 Language:
+        <select id="languageSelect">
+          <option value="sv">Swedish</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+    </div>
+  </nav>
+
+  <h1>Website Updates</h1>
+
+  <main>
+  <div class="update-section">
+    <div class="date">Published: August 5, 2025</div>
+    <div class="change added">+ Minor improvements and optimizations in the code for a better user experience.</div>
+    <div class="change added">+ Small adjustments to page metadata and structure for better presentation.</div>
+    <div class="change added">+ Updated policy with a new section on Responsible Communication about Alcohol.<div><span style="color: orange; font-weight: bold;">We encourage all users to read it.</span></div></div>
+    <div class="change removed">- Parts of the tutorial about the <strong>"Show my location"</strong> button have been removed.</div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: August 1, 2025</div>
+    <div class="change added">+ Minor bugs have been fixed.</div>
+    <div class="change added">+ Age filter implemented – visitors must now confirm they are 18 or older to use the website.</div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: July 29, 2025</div>
+    <div class="change added">+ A loading animation has been implemented and only shows on poor internet connection.</div>
+    <div class="change added">+ The map automatically switches to light theme in light mode and dark theme in dark mode.</div>
+    <div class="change added">+ The map is set to dark theme by default to provide a more comfortable user experience during longer use.</div>
+    <div class="change added">+ The tutorial has been clarified: the ❌ icon on the map indicates the bar is currently closed.</div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: July 28, 2025</div>
+    <div class="change added">+ Several bugs have been fixed.</div>
+    <div class="change added">+ The beer map has been optimized for faster usage.</div>
+    <div class="change added">+ The bug in the tutorial where users couldn't click "Next" to complete the last step is now fixed.</div>
+    <div class="change added">+ We have continued developing the English version of the website. You can already switch to it via the settings menu.
+    <div class="warning">Note: The English version of the site is not yet fully completed and lacks some features present in the Swedish version.</div>
+    </div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: July 24, 2025</div>
+    <div class="change added">+ Updated hamburger menu on Policy and About Us pages with a link to Updates for easier navigation.</div>
+    <div class="change added">+ Navigation menu added on the Updates page for consistent navigation.</div>
+    <div class="change added">+ Tutorial improved: added "Show my location" feature.</div>
+    <div class="change removed">- "Got it" button removed from the tutorial page.</div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: July 23, 2025</div>
+    <div class="change added">+ Tutorial updated with a clear explanation of what the bar colors mean.</div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: July 21, 2025</div>
+    <div class="change added">+ New settings menu! Switch between dark and light modes.</div>
+    <div class="change added">+ You can now switch languages between Swedish and English.</div>
+    <div class="change added">+ Tutorial section updated:
+    - Now also explains how the settings button works and what you can adjust there.</div>
+    <div class="change added">+ Dynamic display of opening hours in the bar info popup:
+    - If the bar is closed: shows when it opens.
+    - If the bar is open: shows when it closes.</div>
+    <div class="change removed">- The contact page has now been removed.</div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: July 20, 2025</div>
+    <div class="change added">+ Your location on the map is now shown with a blue circle instead of green.</div>
+    <div class="change added">+ All links to bars are now active – you can find the link when you click on the bar.</div>
+    <div class="change added">+ Bars that were displayed incorrectly have been fixed.</div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: July 17, 2025</div>
+    <div class="change added">+ New design on our policy page! More spacious, easier to read, and better integrated with the overall design.</div>
+    <div class="change added">+ Preparations for future features.</div>
+    <div class="change added">+ Behind-the-scenes optimizations – improved performance and maintenance.</div>
+  </div>
+
+  <div class="update-section">
+    <div class="date">Published: July 15, 2025</div>
+    <div class="change added">+ Tutorial for time selection updated – clear info that Happy Hour & opening hours apply for TODAY.</div>
+    <div class="change added">+ Added meta description so Google shows the correct description in search results.</div>
+    <div class="change added">+ Instagram link in our policy is now clickable.</div>
+    <div class="change added">+ Minor bug fixes and code cleanup for better performance.</div>
+  </div>
+  </main>
+
+<script>
+  document.getElementById("hamburger").addEventListener("click", () => {
+    const menu = document.getElementById("menu");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  });
+
+  const toggleBtn = document.getElementById("settingsToggle");
+  const panel = document.getElementById("settingsPanel");
+  const darkToggle = document.getElementById("darkModeToggle");
+  const langSelect = document.getElementById("languageSelect");
+
+  toggleBtn.addEventListener("click", () => {
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+  });
+
+  darkToggle.addEventListener("change", () => {
+    if (darkToggle.checked) {
+      document.body.classList.add("dark");
+      localStorage.setItem("darkMode", "true");
+    } else {
+      document.body.classList.remove("dark");
+      localStorage.setItem("darkMode", "false");
+    }
+  });
+
+  langSelect.addEventListener("change", () => {
+    const val = langSelect.value;
+    window.location.href = val === "en" ? "index-en.html" : "index.html";
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark");
+      darkToggle.checked = true;
+    }
+
+    const currentPath = window.location.pathname;
+    langSelect.value = currentPath.includes("index-en") ? "en" : "sv";
+  });
+</script>
+</body>
+</html>

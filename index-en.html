@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="vadkostarolenlogga48x.png">
-  <meta name="description" content="Jämför ölpriser och Happy Hour-tider på barer runt Stockholm. Hitta billigaste ölen snabbt – uppdaterat av oss och våra följare. Instagram: vadkostarölen.se.">
-  <title>Stockholm Beer Map</title>
+  <meta name="description" content="Compare beer prices and Happy Hour times at bars around Stockholm. Find the cheapest beer quickly - updated by us and our followers. Instagram: vadkostarölen.se.">
+  <title>How Much is the Beer?</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="71c8444a-27bf-4d75-be15-1137e8bf2b0d"></script> 
+  <script data-goatcounter="https://vadkostarolen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
   <script type="application/ld+json">
   {
   "@context": "https://schema.org",
@@ -163,7 +165,6 @@
       }
     }
 
-    /* DK on - off och språkval css */
     :root {
   --bg-color: white;
   --text-color: black;
@@ -217,15 +218,14 @@ nav {
 <div id="tutorialOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); color: white; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
   <div id="tutorialStep" style="max-width: 90%; width: 500px;">
     <h2 style="font-size: 1.5rem;">Welcome to vadkostarölen.se!</h2>
-    <p style="font-size: 1rem;">We’ll show you quickly how to use the our website.</p>
-    <button id="startTutorial" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Start tour</button>
+    <p style="font-size: 1rem;">We’ll quickly show you how to use the website.</p>
+<button id="startTutorial" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Start Tour</button>
   </div>
 
   <div id="tutorialPointer" style="display:none; max-width: 90%; width: 500px;">
     <div id="stepText" style="margin-bottom: 1rem; font-size: 1rem;"></div>
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
       <button id="nextStep" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Next</button>
-      <button id="endTutorial" style="padding: 0.6rem 1.2rem; font-size: 1rem;">Got it</button>
     </div>
   </div>
 </div>
@@ -235,9 +235,10 @@ nav {
   <div class="title">vadkostarölen.se</div>
   <input type="time" id="timePicker" />
   <div class="menu" id="menu">
-    <a href="#" id="cheapestBeer">Rank cheapest beer</a>
-    <a href="aboutus.html">About us</a>
-    <a href="policy.html">Policy</a>
+    <a href="#" id="cheapestBeer">Rank Cheapest Beer</a>
+    <a href="aboutus-en.html">About us</a>
+    <a href="policy-en.html">Policy</a>
+    <a href="updates-en.html">Updates</a>
   </div>
 
   <button class="settings-btn" id="settingsToggle" title="Inställningar">⚙️</button>
@@ -249,7 +250,7 @@ nav {
   <label>
     🌐 Language:
     <select id="languageSelect">
-      <option value="sv">Swedish</option>
+      <option value="sv">Svenska</option>
       <option value="en">English</option>
     </select>
   </label>
@@ -258,7 +259,7 @@ nav {
 
 <div id="map"></div>
 
-<div id="locateIcon" title="Visa min position" aria-label="Visa min position" role="button" tabindex="0" style="
+<div id="locateIcon" title="Show my location" aria-label="Visa min position" role="button" tabindex="0" style="
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -275,20 +276,31 @@ nav {
 
 
 <script>
-  const tutorialSteps = [
-    {
-      text: 'Here you change the time to see beer prices at different hours today. Happy hour and opening hours are for today only.',
-      targetId: 'timePicker'
-    },
-    {
-      text: 'Here you can change settings like dark mode and language.',
-      targetId: 'settingsToggle'
-    },
-    {
-      text: 'This opens the menu with more options.',
-      targetId: 'hamburger'
-    }
-  ];
+const tutorialSteps = [
+  {
+    text: 'Here you can change settings such as dark mode and language.',
+    targetId: 'settingsToggle'
+  },
+  {
+    text: 'Here you can adjust the time to view prices at different hours today. Happy Hour times and opening hours apply to today’s date.',
+    targetId: 'timePicker'
+  },
+  {
+    text: 'Here you can open the menu with more options.',
+    targetId: 'hamburger'
+  },
+  {
+    text: `
+      The colors on the map indicate the current beer price level:<br>
+      <strong style="color: limegreen;">Lime Green</strong> = Price up to and including 40 SEK<br>
+      <strong style="color: orange;">Orange</strong> = Price over 40 SEK and up to 65 SEK<br>
+      <strong style="color: red;">Red</strong> = Price over 65 SEK<br>
+      <strong>❌</strong> = means the bar is closed<br><br>
+      When you click on "Rank Cheapest Beer" in our menu, the map will zoom in on the bar with the cheapest beer.
+    `,
+    targetId: 'map'
+  }
+];
 
   let currentStep = 0;
   let highlightBox;
@@ -312,8 +324,6 @@ nav {
       showStep(currentStep);
     }
   };
-
-  document.getElementById('endTutorial').onclick = endTutorial;
 
   function showStep(index) {
     const step = tutorialSteps[index];
@@ -349,12 +359,22 @@ nav {
     }
   });
 
+  //ändring 1
+  const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap',
+  subdomains: 'abcd',
+  maxZoom: 19
+});
+
+const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap',
+  subdomains: 'abcd',
+  maxZoom: 19
+});
+
+  //ändraing 2
   const map = L.map('map').setView([59.3293, 18.0686], 13);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(map);
+  lightTiles.addTo(map);
 
   let userMarker = null;
 
@@ -369,12 +389,12 @@ nav {
           color: '#0096ff',
           fillColor: '#0096ff',
           fillOpacity: 0.8
-        }).addTo(map).bindPopup("You're here!");
+        }).addTo(map).bindPopup("You are here!!");
 
         map.setView([userLat, userLng], 14);
       },
       error => {
-        console.warn("Could not fetch location: ", error);
+        console.warn("Could not retrieve location: ", error);
       }
     );
   } else {
@@ -432,48 +452,79 @@ nav {
 
   const dayKeys = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-    function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
-    const priceText = isOpen ? priceToShow : "❌";
-    let color;
-    let zIndex;
+function getLogicalDayIndex(currentTime = null) {
+  const now = currentTime ? new Date(currentTime) : new Date();
+  const hours = now.getHours();
+  let day = now.getDay(); // 0 = söndag, 1 = måndag, ..., 6 = lördag
 
-    if (isOpen) {
-      color = getPriceColor(priceToShow);
-      if (color === "limegreen") zIndex = 3000;
-      else if (color === "orange") zIndex = 2000;
-      else if (color === "red") zIndex = 1000;
-      else zIndex = 500;
-    } else {
-      color = "gray";
-      zIndex = 0;
-    }
-
-    const priceIcon = L.divIcon({
-      className: 'price-marker',
-      html: `<div class="price-circle" style="background-color: ${color}">${priceText}</div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
-    });
-
-    const popup = `
-     <strong>${bar.name}</strong><br>
-     ${isOpen ? `Current beer price: ${priceToShow} SEK` : "Closed"}<br>
-     ${(bar.happyHour ? (isWeekend ? "Happy Hour: Weekdays only!" : `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}`) : "No Happy Hour")}<br>
-     ${bar.link ? `<a href="${bar.link}" target="_blank" rel="noopener noreferrer">View on Google</a>` : ""}
-    `;
-
-    const marker = L.marker([bar.lat, bar.lng], {
-      icon: priceIcon,
-      zIndexOffset: zIndex
-    }).addTo(map).bindPopup(popup);
-
-    currentMarkers.push(marker);
+  if (hours < 5) {
+    // Om klockan är mellan 00:00 och 04:59 → räkna det som föregående dag
+    day = (day - 1 + 7) % 7;
   }
+
+  return day;
+}
+
+function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
+  const priceText = isOpen ? priceToShow : "❌";
+  let color;
+  let zIndex;
+
+  if (isOpen) {
+    color = getPriceColor(priceToShow);
+    zIndex = color === "limegreen" ? 3000 : color === "orange" ? 2000 : 1000;
+  } else {
+    color = "gray";
+    zIndex = 0;
+  }
+
+  const priceIcon = L.divIcon({
+    className: 'price-marker',
+    html: `<div class="price-circle" style="background-color: ${color}">${priceText}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+
+  const todayIndex = getLogicalDayIndex();
+  const openFrom = bar[`Open${dayKeys[todayIndex]}`];
+  const openTo = bar[`Closed${dayKeys[todayIndex]}`];
+  const openingTimeText = openFrom && openTo ? `${openFrom} - ${openTo}` : "Unknown";
+
+  let popupHTML = `<strong>${bar.name}</strong><br>`;
+
+  if (isOpen) {
+    popupHTML += `Closing - ${openTo}<br>`;
+    popupHTML += `Current beer price: ${priceToShow} kr<br>`;
+
+    if (!isWeekend && bar.happyHour) {
+      popupHTML += `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}<br>`;
+    } else if (!bar.happyHour) {
+      popupHTML += `No Happy Hour<br>`;
+    } else {
+      popupHTML += `Happy Hour: Only valid on weekdays!<br>`;
+    }
+  } else {
+    popupHTML += `Closed - opens ${openFrom}<br>`;
+    popupHTML += `No Happy Hour<br>`;
+  }
+
+  if (bar.link) {
+    popupHTML += `<a href="${bar.link}" target="_blank" rel="noopener noreferrer">View on Google</a>`;
+  }
+
+  const marker = L.marker([bar.lat, bar.lng], {
+    icon: priceIcon,
+    zIndexOffset: zIndex
+  }).addTo(map).bindPopup(popupHTML);
+
+  currentMarkers.push(marker);
+}
+
 
   function updateBarsAtTime(selectedTime) {
     clearMarkers();
 
-    const todayIndex = new Date().getDay();
+    const todayIndex = getLogicalDayIndex();
     const isWeekend = todayIndex === 0 || todayIndex === 6;
 
     bars.forEach(bar => {
@@ -514,12 +565,12 @@ nav {
 
   document.getElementById("cheapestBeer").addEventListener("click", () => {
     if (bars.length === 0) {
-      alert("No bars are loaded yet.");
+      alert("No bars have been loaded yet.");
       return;
     }
 
     const currentTime = document.getElementById("timePicker").value;
-    const todayIndex = new Date().getDay();
+    const todayIndex = getLogicalDayIndex();
 
     const openBars = bars.filter(bar => {
       const openFrom = bar[`Open${dayKeys[todayIndex]}`];
@@ -547,7 +598,7 @@ nav {
     });
 
     map.setView([cheapestBar.lat, cheapestBar.lng], 16);
-    alert(`Cheapest beer right now is at ${cheapestBar.name}: ${lowestPrice} SEK`);
+    alert(`The cheapest beer right now is at ${cheapestBar.name}: ${lowestPrice} kr`);
   });
 
   const locateIcon = document.getElementById("locateIcon");
@@ -557,7 +608,7 @@ nav {
       map.setView(userMarker.getLatLng(), 14, { animate: true });
       userMarker.openPopup();
     } else {
-      alert("We can't find your location right now.");
+      alert("We can’t find your location right now.");
     }
   });
 
@@ -572,7 +623,7 @@ nav {
 
       fetch(csvUrl)
         .then(response => {
-          if (!response.ok) throw new Error('Nätverksfel vid hämtning av CSV');
+          if (!response.ok) throw new Error('Network error while fetching CSV');
           return response.text();
         })
         .then(csvText => {
@@ -587,7 +638,7 @@ nav {
             lng: parseFloat(row.Lng),
             beerPrice: parseFloat(row.VanligtPris),
             happyHour: row.HappyPris ? {
-            from: row[`Open${dayKeys[new Date().getDay()]}`],
+            from: row[`Open${dayKeys[getLogicalDayIndex()]}`],
             to: row.Happyframtill,
             price: parseFloat(row.HappyPris)
             } : null,
@@ -614,7 +665,7 @@ nav {
           updateBarsAtTime(initialTime);
         })
         .catch(err => {
-          console.error("Error while fetching or parsing the CSV:", err);
+          console.error("Error fetching or parsing CSV:", err);
         });
     });
 </script>
@@ -625,23 +676,26 @@ nav {
   const darkToggle = document.getElementById("darkModeToggle");
   const langSelect = document.getElementById("languageSelect");
 
-  // Öppna/stäng kugghjulspanelen
   toggleBtn.addEventListener("click", () => {
     panel.style.display = panel.style.display === "block" ? "none" : "block";
   });
 
-  // Dark mode logik
-  darkToggle.addEventListener("change", () => {
-    if (darkToggle.checked) {
-      document.body.classList.add("dark");
-      localStorage.setItem("darkMode", "true");
-    } else {
-      document.body.classList.remove("dark");
-      localStorage.setItem("darkMode", "false");
-    }
-  });
+  // Dark mode logik + light map ändring 3
+darkToggle.addEventListener("change", () => {
+  if (darkToggle.checked) {
+    document.body.classList.add("dark");
+    map.removeLayer(lightTiles);
+    map.addLayer(darkTiles);
+    localStorage.setItem("darkMode", "true");
+  } else {
+    document.body.classList.remove("dark");
+    map.removeLayer(darkTiles);
+    map.addLayer(lightTiles);
+    localStorage.setItem("darkMode", "false");
+  }
+});
 
-  // Språkbyte
+
   langSelect.addEventListener("change", () => {
     const val = langSelect.value;
     if (val === "en") {
@@ -651,13 +705,15 @@ nav {
     }
   });
 
-  // Ladda inställningar från localStorage
-  window.addEventListener("DOMContentLoaded", () => {
-    if (localStorage.getItem("darkMode") === "true") {
-      document.body.classList.add("dark");
-      darkToggle.checked = true;
-    }
-
+  //ändring 4
+window.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+    darkToggle.checked = true;
+    darkTiles.addTo(map);
+  } else {
+    darkTiles.addTo(map);
+  }
     const currentPath = window.location.pathname;
     if (currentPath.includes("index-en")) {
       langSelect.value = "en";
@@ -665,6 +721,212 @@ nav {
       langSelect.value = "sv";
     }
   });
+</script>
+<style>
+/* Loader fullskärm */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  transition: opacity 0.5s ease;
+  font-family: sans-serif;
+  color: #333;
+}
+
+/* För Dark Mode */
+body.dark #loader {
+  background: #121212;
+  color: #fff;
+}
+
+#loader img {
+  width: 120px;
+  height: 120px;
+  animation: pulse 1.5s ease-in-out infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes pulse {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.15); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+#loader p {
+  font-size: 1.2rem;
+  margin: 0;
+}
+</style>
+
+<script>
+let loaderTimeout;
+
+document.addEventListener("DOMContentLoaded", () => {
+//Loadern visas först om sidan inte är klar efter 800ms
+  loaderTimeout = setTimeout(showLoader, 800);
+});
+
+window.addEventListener("load", () => {
+  clearTimeout(loaderTimeout);
+  hideLoader();
+});
+
+function showLoader() {
+  if (document.getElementById('loader')) return;
+
+  const loaderDiv = document.createElement('div');
+  loaderDiv.id = 'loader';
+  loaderDiv.innerHTML = `
+    <img src="vadkostarolenlogga112x112-removebg-preview.png" alt="Loading...">
+    <p id="loaderText">Loading.</p>
+  `;
+  document.body.prepend(loaderDiv);
+  animateLoaderText();
+}
+
+function animateLoaderText() {
+  const loaderText = document.getElementById('loaderText');
+  if (!loaderText) return;
+
+  const fastMessages = ["Loading.", "Loading..", "Loading..."];
+  const slowMessages = ["Loading map...", "Loading all bars...", "Loading complete!"];
+
+  let index = 0;
+
+  const fastInterval = setInterval(() => {
+    if (!loaderText) { clearInterval(fastInterval); return; }
+    loaderText.textContent = fastMessages[index];
+    index++;
+    if (index >= fastMessages.length) {
+      clearInterval(fastInterval);
+      startSlowPhase(loaderText, slowMessages);
+    }
+  }, 750);
+}
+
+const weekdayNames = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
+console.log("The system interprets the day as: " + weekdayNames[getLogicalDayIndex()]);
+
+function startSlowPhase(loaderText, messages) {
+  let i = 0;
+  const slowInterval = setInterval(() => {
+    if (!loaderText) { clearInterval(slowInterval); return; }
+    loaderText.textContent = messages[i];
+    i++;
+    if (i >= messages.length) {
+      clearInterval(slowInterval);
+      hideLoader();
+    }
+  }, 1250); //slowmessages ms
+}
+
+function hideLoader() {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    loader.style.opacity = '0';
+    setTimeout(() => loader.remove(), 500);
+  }
+}
+</script>
+<div id="ageGate">
+  <div class="age-content">
+    <h2>Age Verification</h2>
+    <p>This website displays information about alcohol prices. You must be at least 18 years old to continue.</p>
+    <div class="age-buttons">
+      <button id="btnYes">I am 18 or older</button>
+      <button id="btnNo">I am under 18</button>
+    </div>
+  </div>
+</div>
+
+<style>
+#ageGate {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.age-content {
+  max-width: 90%;
+  width: 400px;
+}
+
+.age-buttons {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.age-buttons button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+#btnYes {
+  background: #4caf50;
+  color: white;
+}
+
+#btnNo {
+  background: #ff4d4d;
+  color: white;
+}
+
+/* Mobilanpassning */
+@media (max-width: 500px) {
+  #ageGate {
+    padding: 1rem;
+  }
+  .age-content h2 {
+    font-size: 1.4rem;
+  }
+  .age-content p {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .age-buttons button {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+</style>
+
+<script>
+document.getElementById('btnYes').addEventListener('click', () => {
+  document.getElementById('ageGate').style.display = 'none';
+});
+
+document.getElementById('btnNo').addEventListener('click', () => {
+  document.querySelector('.age-content').innerHTML = `
+    <h2>Access Denied</h2>
+    <p>You must be at least 18 years old to use this site.</p>
+  `;
+});
 </script>
 </body>
 </html>
