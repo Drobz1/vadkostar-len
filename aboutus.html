@@ -81,6 +81,45 @@
     .om-oss-rubrik {
         color: #ffcc00;
     }
+    .socials {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.socials p {
+  margin-bottom: 0.5rem;
+}
+
+.socials a {
+  margin: 0 0.5rem;
+  transition: transform 0.2s;
+}
+
+.socials a:hover {
+  transform: scale(1.2);
+}
+.socials-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.social-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.social-icon:hover {
+  transform: scale(1.2);
+}
+.social-icon.tiktok {
+  width: 36px;
+  height: 36px;
+}
+
   </style>
 </head>
 <body>
@@ -101,7 +140,17 @@
     <p>Vadkostarölen.se skapades för att hjälpa ölfantaster att hitta de bästa priserna på öl runt om i Stockholm. Med hjälp av vår interaktiva karta kan du se aktuella priser, happy hour-erbjudanden och snabbt få en överblick över var det är billigast just nu.</p>
     <p>Projektet startades av ett gäng kompisar som älskar öl, kod och att hitta deals. Vi ville göra något kul men användbart, som både turister och lokalbor kan ha glädje av.</p>
     <p>Har du tips på barer vi borde lägga till, eller förbättringar? Hör gärna av dig!</p>
+<div class="socials">
+  <p>Följ oss på sociala medier:</p>
+  <div class="socials-icons">
+    <a href="https://instagram.com/vadkostarolen.se" target="_blank" aria-label="Instagram">
+      <img src="instagrampng48x48.png" alt="Instagram" class="social-icon">
+    </a>
+<a href="https://www.tiktok.com/@vadkostarolen.se_" target="_blank" aria-label="TikTok">
+  <img src="tiktokpng48x48.png" alt="TikTok" class="social-icon tiktok">
+</a>
   </div>
+</div>
 
   <script>
     document.getElementById("hamburger").addEventListener("click", () => {
