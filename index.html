@@ -565,43 +565,61 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     menu.style.display = menu.style.display === "block" ? "none" : "block";
   });
 
-  document.getElementById("cheapestBeer").addEventListener("click", () => {
-    if (bars.length === 0) {
-      alert("Inga barer är laddade ännu.");
-      return;
-    }
+document.getElementById("cheapestBeer").addEventListener("click", () => {
+  if (bars.length === 0) {
+    alert("Inga barer är laddade ännu.");
+    return;
+  }
 
-    const currentTime = document.getElementById("timePicker").value;
-    const todayIndex = getLogicalDayIndex();
+  const currentTime = document.getElementById("timePicker").value;
 
-    const openBars = bars.filter(bar => {
-      const openFrom = bar[`Open${dayKeys[todayIndex]}`];
-      const openTo = bar[`Closed${dayKeys[todayIndex]}`];
-      return isOpenAtTime(currentTime, openFrom, openTo);
-    });
+  const dayIdx = (function getDayIndexForSelectedTime(t) {
+    const [hh, mm] = t.split(":").map(Number);
+    const d = new Date();
+    d.setHours(hh, mm, 0, 0);
+    let day = d.getDay();
+    if (hh < 5) day = (day - 1 + 7) % 7;
+    return day;
+  })(currentTime);
 
-    if (openBars.length === 0) {
-      alert("Inga barer är öppna vid denna tid.");
-      return;
-    }
+  const isWeekend = (dayIdx === 0 || dayIdx === 6);
+  const dayKey = dayKeys[dayIdx];
 
-    let cheapestBar = openBars[0];
-    let lowestPrice = cheapestBar.beerPrice;
-
-    openBars.forEach(bar => {
-      let price = bar.beerPrice;
-      if (bar.happyHour && isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to)) {
-        price = bar.happyHour.price;
-      }
-      if (price < lowestPrice) {
-        lowestPrice = price;
-        cheapestBar = bar;
-      }
-    });
-
-    map.setView([cheapestBar.lat, cheapestBar.lng], 16);
-    alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
+  const openBars = bars.filter(bar => {
+    const openFrom = bar[`Open${dayKey}`];
+    const openTo   = bar[`Closed${dayKey}`];
+    return isOpenAtTime(currentTime, openFrom, openTo);
   });
+
+  if (openBars.length === 0) {
+    alert("Inga barer är öppna vid denna tid.");
+    return;
+  }
+
+  let cheapestBar = null;
+  let lowestPrice = Infinity;
+
+  openBars.forEach(bar => {
+    const openFrom = bar[`Open${dayKey}`];
+    let price = bar.beerPrice;
+    if (
+      !isWeekend &&
+      bar.happyHour &&
+      bar.happyHour.to &&
+      isTimeWithinRange(currentTime, openFrom, bar.happyHour.to)
+    ) {
+      price = bar.happyHour.price;
+    }
+
+    if (price < lowestPrice) {
+      lowestPrice = price;
+      cheapestBar = bar;
+    }
+  });
+
+  map.setView([cheapestBar.lat, cheapestBar.lng], 16);
+  alert(`Billigaste ölen just nu är hos ${cheapestBar.name}: ${lowestPrice} kr`);
+});
 
   const locateIcon = document.getElementById("locateIcon");
 
