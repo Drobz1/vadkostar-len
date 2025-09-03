@@ -4,11 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="vadkostarolenlogga48x.png">
-  <meta name="description" content="Jämför ölpriser och Happy Hour-tider på barer runt Stockholm. Hitta billigaste ölen snabbt – uppdaterat av oss och våra följare. Instagram: vadkostarölen.se.">
+  <meta name="description" content="Jämför ölpriser och Happy Hour-tider på barer runt Stockholm. Hitta billigaste ölen snabbt - uppdaterat av oss och våra följare. Instagram: vadkostarölen.se.">
   <title>Vad Kostar Ölen?</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script defer src="https://cloud.umami.is/script.js" data-website-id="71c8444a-27bf-4d75-be15-1137e8bf2b0d"></script> 
   <script data-goatcounter="https://vadkostarolen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#111111">
+  <link rel="apple-touch-icon" href="/apple-icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script type="application/ld+json">
   {
   "@context": "https://schema.org",
@@ -107,6 +112,10 @@
        -1px 0px 0 #000;
     }
 
+    .price-marker .price-circle.closed {
+      opacity: 0.80;
+    }
+
     #locateIcon {
       position: fixed;
       bottom: 20px;
@@ -165,7 +174,7 @@
       }
     }
 
-    /* DK on - off och språkval css */
+    
     :root {
   --bg-color: white;
   --text-color: black;
@@ -182,6 +191,36 @@ body {
 }
 nav {
   background-color: var(--nav-color);
+  color: white;
+  padding: 1rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+
+nav .title {
+  font-size: 1.2rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.search-wrap,
+#timePicker,
+.settings-btn,
+.hamburger {
+  flex: 0 0 auto;
+}
+
+
+#timePicker {
+  width: 80px;
 }
 .settings-btn {
   cursor: pointer;
@@ -211,6 +250,132 @@ nav {
 .settings-panel select {
   padding: 0.3rem;
 }
+
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-btn {
+  background: #444;
+  border: none;
+  color: #fff;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+body.dark .search-btn { background: #333; }
+
+
+.search-panel {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  left: auto;
+  max-width: 360px;
+  width: 80vw;
+  box-sizing: border-box;
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  padding: 0.6rem;
+  display: none;
+  z-index: 1004;
+}
+.search-panel.open { display: block; }
+
+.search-inner { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.search-inner input {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #666;
+  background: transparent;
+  color: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+body.dark .search-inner input { 
+  border-color: #888;
+}
+
+.results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 45vh;
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(128,128,128,0.4);
+  overscroll-behavior: contain;
+}
+.results li {
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid rgba(128,128,128,0.25);
+  cursor: pointer;
+}
+.results li:last-child { border-bottom: none; }
+.results li:hover, .results li:focus { background: rgba(128,128,128,0.15); }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.search-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 1003;
+  display: none;
+}
+.search-backdrop.open { display: block; }
+
+@media (max-width: 600px) {
+  .search-panel {
+    position: fixed;
+    top: 58px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-height: 60vh;
+    padding: 0.7rem;
+    border-radius: 14px;
+    z-index: 1004;
+  }
+
+  body.search-open { overflow: hidden; }
+}
+
+.price-badge {
+  float: right;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* badge i sök */
+.price-green  { background: limegreen; color: white; }
+.price-orange { background: orange;    color: white; }
+.price-red    { background: red;       color: white; }
+.price-gray   { background: gray;      color: white; }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -234,6 +399,23 @@ nav {
 <nav>
   <div class="hamburger" id="hamburger">&#9776;</div>
   <div class="title">vadkostarölen.se</div>
+  <div class="search-wrap">
+    <button id="openSearch" class="search-btn" aria-label="Sök bar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div id="searchPanel" class="search-panel" role="dialog" aria-modal="true" aria-labelledby="searchInputLabel">
+      <div class="search-inner">
+        <label id="searchInputLabel" class="sr-only" for="searchInput">Sök bar</label>
+        <input id="searchInput" type="text" placeholder="Sök" autocomplete="off" />
+        <ul id="searchResults" class="results" role="listbox" aria-label="Sökresultat"></ul>
+      </div>
+    </div>
+  </div>
+
   <input type="time" id="timePicker" />
   <div class="menu" id="menu">
     <a href="#" id="cheapestBeer">Ranka billigast öl</a>
@@ -257,6 +439,8 @@ nav {
   </label>
 </div>
 </nav>
+
+<div id="searchBackdrop" class="search-backdrop"></div>
 
 <div id="map"></div>
 
@@ -374,27 +558,36 @@ const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/
   maxZoom: 19
 });
 
-  //ändraing 2
-  const map = L.map('map').setView([59.3293, 18.0686], 13);
-  lightTiles.addTo(map);
+
+const stored = localStorage.getItem('darkMode');
+const startDark = (stored === null) ? true : (stored === 'true');
+
+const map = L.map('map').setView([59.3293, 18.0686], 13);
+(startDark ? darkTiles : lightTiles).addTo(map);
+if (startDark) {
+  document.body.classList.add('dark');
+}
 
   let userMarker = null;
+  let userPos = null;
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      position => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
+position => {
+  const userLat = position.coords.latitude;
+  const userLng = position.coords.longitude;
 
-        userMarker = L.circleMarker([userLat, userLng], {
-          radius: 8,
-          color: '#0096ff',
-          fillColor: '#0096ff',
-          fillOpacity: 0.8
-        }).addTo(map).bindPopup("Du är här!");
+  userPos = L.latLng(userLat, userLng);
 
-        map.setView([userLat, userLng], 14);
-      },
+  userMarker = L.circleMarker([userLat, userLng], {
+    radius: 8,
+    color: '#0096ff',
+    fillColor: '#0096ff',
+    fillOpacity: 0.8
+  }).addTo(map).bindPopup("Du är här!");
+
+  map.setView([userLat, userLng], 14);
+},
       error => {
         console.warn("Kunde inte hämta platsen: ", error);
       }
@@ -404,11 +597,13 @@ const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/
   }
 
   let currentMarkers = [];
+  let markersByName = {};
   let bars = [];
 
   function clearMarkers() {
     currentMarkers.forEach(marker => map.removeLayer(marker));
     currentMarkers = [];
+    markersByName = {}; 
   }
 
   function getPriceColor(price) {
@@ -457,10 +652,10 @@ const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/
 function getLogicalDayIndex(currentTime = null) {
   const now = currentTime ? new Date(currentTime) : new Date();
   const hours = now.getHours();
-  let day = now.getDay(); // 0 = söndag, 1 = måndag, ..., 6 = lördag
+  let day = now.getDay();
 
   if (hours < 5) {
-    // Om klockan är mellan 00:00 och 04:59 → räkna det som föregående dag
+    
     day = (day - 1 + 7) % 7;
   }
 
@@ -480,24 +675,28 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
     zIndex = 0;
   }
 
+
+  const circleClass = isOpen ? "price-circle" : "price-circle closed";
+
   const priceIcon = L.divIcon({
-    className: 'price-marker',
-    html: `<div class="price-circle" style="background-color: ${color}">${priceText}</div>`,
+    className: "price-marker",
+    html:
+      '<div class="' + circleClass + '" style="background-color: ' + color + '">' +
+      priceText +
+      "</div>",
     iconSize: [30, 30],
     iconAnchor: [15, 15]
   });
 
   const todayIndex = getLogicalDayIndex();
   const openFrom = bar[`Open${dayKeys[todayIndex]}`];
-  const openTo = bar[`Closed${dayKeys[todayIndex]}`];
-  const openingTimeText = openFrom && openTo ? `${openFrom} - ${openTo}` : "Okänt";
+  const openTo   = bar[`Closed${dayKeys[todayIndex]}`];
 
   let popupHTML = `<strong>${bar.name}</strong><br>`;
 
   if (isOpen) {
     popupHTML += `Stänger - ${openTo}<br>`;
     popupHTML += `Ölpris just nu: ${priceToShow} kr<br>`;
-
     if (!isWeekend && bar.happyHour) {
       popupHTML += `Happy Hour: ${bar.happyHour.from} - ${bar.happyHour.to}<br>`;
     } else if (!bar.happyHour) {
@@ -520,6 +719,7 @@ function createMarker(bar, priceToShow, time, isOpen, isWeekend) {
   }).addTo(map).bindPopup(popupHTML);
 
   currentMarkers.push(marker);
+  markersByName[normalizeStr(bar.name)] = marker;
 }
 
 
@@ -639,8 +839,8 @@ document.getElementById("cheapestBeer").addEventListener("click", () => {
   });
 
     window.addEventListener('DOMContentLoaded', () => {
-      const csvUrl = 'https://docs.google.com/spreadsheets/d/149uVBs81T7fyytKBd-caPVkgrle41-q7LqrLB3fGqFU/gviz/tq?tqx=out:csv&sheet=Vadkostarölen.se ';
-
+      const csvUrl = 'https://docs.google.com/spreadsheets/d/149uVBs81T7fyytKBd-caPVkgrle41-q7LqrLB3fGqFU/gviz/tq?tqx=out:csv&sheet=Vadkostarölen.se';
+      
       fetch(csvUrl)
         .then(response => {
           if (!response.ok) throw new Error('Nätverksfel vid hämtning av CSV');
@@ -700,7 +900,7 @@ document.getElementById("cheapestBeer").addEventListener("click", () => {
     panel.style.display = panel.style.display === "block" ? "none" : "block";
   });
 
-  // Dark mode logik + light map ändring 3
+
 darkToggle.addEventListener("change", () => {
   if (darkToggle.checked) {
     document.body.classList.add("dark");
@@ -725,25 +925,18 @@ darkToggle.addEventListener("change", () => {
     }
   });
 
-  //ändring 4
+
 window.addEventListener("DOMContentLoaded", () => {
-  if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark");
-    darkToggle.checked = true;
-    darkTiles.addTo(map);
-  } else {
-    darkTiles.addTo(map);
-  }
-    const currentPath = window.location.pathname;
-    if (currentPath.includes("index-en")) {
-      langSelect.value = "en";
-    } else {
-      langSelect.value = "sv";
-    }
-  });
+  const isDark = (localStorage.getItem("darkMode") ?? "true") === "true";
+  document.body.classList.toggle("dark", isDark);
+  darkToggle.checked = isDark;
+
+  const currentPath = window.location.pathname;
+  langSelect.value = currentPath.includes("index-en") ? "en" : "sv";
+});
 </script>
 <style>
-/* Loader fullskärm */
+
 #loader {
   position: fixed;
   top: 0;
@@ -917,7 +1110,7 @@ function hideLoader() {
   color: white;
 }
 
-/* Mobilanpassning */
+
 @media (max-width: 500px) {
   #ageGate {
     padding: 1rem;
@@ -947,6 +1140,246 @@ document.getElementById('btnNo').addEventListener('click', () => {
     <p>Du måste vara minst 18 år för att använda denna sida.</p>
   `;
 });
+</script>
+<script>
+
+function normalizeStr(s) {
+  return (s || "")
+    .toString()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim();
+}
+
+function distanceKm(aLat, aLng, bLat, bLng) {
+  const R = 6371;
+  const toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(bLat - aLat);
+  const dLng = toRad(bLng - aLng);
+  const lat1 = toRad(aLat);
+  const lat2 = toRad(bLat);
+  const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+
+function formatKm(km) {
+  if (!isFinite(km)) return "";
+  return `${km.toFixed(1)} km`;
+}
+
+
+
+
+const backdrop      = document.getElementById("searchBackdrop");
+const openSearchBtn = document.getElementById("openSearch");
+const searchPanel   = document.getElementById("searchPanel");
+const searchInput   = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
+
+
+if (!openSearchBtn || !searchPanel || !searchInput || !searchResults) {
+  console.warn("[search] Nödvändiga element saknas.");
+}
+
+
+function toggleSearchPanel(open) {
+  searchPanel.classList.toggle("open", open);
+  if (backdrop) backdrop.classList.toggle("open", open);
+  document.body.classList.toggle("search-open", open);
+  if (open) {
+    searchInput.value = "";
+    searchResults.innerHTML = "";
+  }
+}
+
+
+openSearchBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const willOpen = !searchPanel.classList.contains("open");
+
+
+  document.querySelectorAll(".menu").forEach(m => (m.style.display = "none"));
+
+
+  toggleSearchPanel(willOpen);
+
+
+  if (willOpen) {
+    searchInput.focus({ preventScroll: true });
+    try { 
+      searchInput.setSelectionRange(0, searchInput.value.length); 
+    } catch {}
+  }
+});
+
+
+searchPanel.addEventListener("click", (e) => e.stopPropagation());
+
+
+if (backdrop) {
+  backdrop.addEventListener("click", () => toggleSearchPanel(false));
+}
+
+
+document.addEventListener("click", (e) => {
+
+  if (!searchPanel.classList.contains("open")) return;
+
+  const klickIPanel = searchPanel.contains(e.target);
+  const klickPaKnapp = openSearchBtn.contains(e.target);
+
+  if (!klickIPanel && !klickPaKnapp) {
+    toggleSearchPanel(false);
+  }
+});
+
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") toggleSearchPanel(false);
+});
+
+
+  let _nominatimLast = 0;
+async function nominatimFetch(url) {
+  const now = Date.now();
+  const wait = Math.max(0, 1100 - (now - _nominatimLast));
+  if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  _nominatimLast = Date.now();
+  return fetch(url, { headers: { Accept: "application/json" } });
+}
+
+async function getStreet(lat, lng) {
+  const key = `addr:${lat.toFixed(5)},${lng.toFixed(5)}`;
+  const cached = localStorage.getItem(key);
+  if (cached) return cached;
+
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&addressdetails=1`;
+  try {
+    const res = await nominatimFetch(url);
+    if (!res.ok) {
+      console.warn("Nominatim svarade inte OK:", res.status, res.statusText);
+      return null;
+    }
+    const data = await res.json();
+    const street = data?.address?.road || data?.display_name || null;
+    if (street) localStorage.setItem(key, street);
+    return street;
+  } catch (e) {
+    console.warn("Nominatim fel:", e);
+    return null;
+  }
+}
+
+// Debounce
+let searchDebounce;
+searchInput.addEventListener("input", () => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(runSearch, 120);
+});
+
+
+async function runSearch() {
+  const q = normalizeStr(searchInput.value);
+  searchResults.innerHTML = "";
+  if (!q || !Array.isArray(bars) || bars.length === 0) return;
+
+
+  const ranked = bars
+    .map(b => ({ bar: b, n: normalizeStr(b.name) }))
+    .filter(x => x.n.includes(q))
+    .sort((a, b) => {
+      const aStart = a.n.startsWith(q) ? 0 : 1;
+      const bStart = b.n.startsWith(q) ? 0 : 1;
+      if (aStart !== bStart) return aStart - bStart;
+      return a.n.localeCompare(b.n);
+    })
+    .slice(0, 8);
+
+  if (ranked.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "Inga träffar";
+    li.style.opacity = 0.8;
+    searchResults.appendChild(li);
+    return;
+  }
+
+
+  const currentTime = document.getElementById("timePicker").value;
+  const todayIdx    = getLogicalDayIndex();
+  const isWeekend   = (todayIdx === 0 || todayIdx === 6);
+
+  for (const { bar } of ranked) {
+    const li = document.createElement("li");
+    li.setAttribute("role", "option");
+    li.tabIndex = 0;
+
+
+    const dk = userPos ? distanceKm(userPos.lat, userPos.lng, bar.lat, bar.lng) : null;
+
+
+    const openFrom = bar[`Open${dayKeys[todayIdx]}`];
+    const openTo   = bar[`Closed${dayKeys[todayIdx]}`];
+    const isOpen   = isOpenAtTime(currentTime, openFrom, openTo);
+
+
+    let priceText  = "❌";
+    let badgeClass = "price-gray";
+    if (isOpen) {
+      const priceNow = (!isWeekend && bar.happyHour && bar.happyHour.from && bar.happyHour.to &&
+                        isTimeWithinRange(currentTime, bar.happyHour.from, bar.happyHour.to))
+        ? bar.happyHour.price
+        : bar.beerPrice;
+
+      priceText = `${priceNow}`;
+      const c = getPriceColor(priceNow);
+      badgeClass = (c === "limegreen") ? "price-green" : (c === "orange") ? "price-orange" : "price-red";
+    }
+
+
+    li.innerHTML = `
+      <strong>${bar.name}</strong>
+      <span class="price-badge ${badgeClass}">${priceText}</span><br>
+      <small class="meta">Hämtar adress… · ${dk !== null ? formatKm(dk) : "—"}</small>
+    `;
+
+
+    getStreet(bar.lat, bar.lng).then(street => {
+      if (!street) return;
+      const meta = li.querySelector(".meta");
+      if (meta) meta.textContent = `${street} · ${dk !== null ? formatKm(dk) : "—"}`;
+    });
+
+
+    li.addEventListener("click", () => focusBar(bar.name));
+    li.addEventListener("keydown", (e) => { if (e.key === "Enter") focusBar(bar.name); });
+    searchResults.appendChild(li);
+  }
+}
+
+
+function focusBar(barName) {
+  const key    = normalizeStr(barName);
+  const marker = markersByName[key];
+  const bar    = bars.find(b => normalizeStr(b.name) === key);
+
+  if (bar)    map.setView([bar.lat, bar.lng], 16, { animate: true });
+  if (marker) marker.openPopup();
+
+  toggleSearchPanel(false);
+}
+
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const first = searchResults.querySelector("li[role='option']");
+    if (first) {
+      const name = first.querySelector("strong")?.textContent || "";
+      focusBar(name);
+    }
+  }
+});
+/* ✨ END */
 </script>
 </body>
 </html>
