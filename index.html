@@ -1141,6 +1141,18 @@ document.getElementById('btnNo').addEventListener('click', () => {
   `;
 });
 </script>
+
+  <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then(reg => console.log("✅ Service Worker registrerad:", reg.scope))
+      .catch(err => console.log("❌ Service Worker fel:", err));
+  });
+}
+</script>
+  
 <script>
 
 function normalizeStr(s) {
